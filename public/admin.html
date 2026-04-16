@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Panel Admin</title>
+  <style>
+  body {
+    font-family: Arial;
+    background: #f5f7fb;
+  }
+
+  .panel {
+    background: #1e3a8a;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px;
+  }
+
+  .card-taller {
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  #editorTaller {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Panel Admin - Talleres</h2>
+<input id="buscar" placeholder="Buscar taller..." oninput="filtrar()">
+<h3>Editar Taller</h3>
+
+<div id="editorTaller" style="display:none; border:1px solid #000; padding:10px; margin:10px;">
+
+  Nombre:<br>
+  <input id="editNombre"><br>
+
+  Teléfono:<br>
+  <input id="editTelefono"><br>
+
+  Descripción:<br>
+  <textarea id="editDescripcion"></textarea><br>
+
+  Servicios:<br>
+  <input id="editServicios"><br>
+
+  Ubicación:<br>
+  <input id="editUbicacion"><br>
+
+  Horario:<br>
+  <input id="editHorario"><br>
+  <hr>
+
+<h4>Control del sistema</h4>
+
+Estado:<br>
+<select id="editEstado">
+  <option value="activo">Activo</option>
+  <option value="bloqueado">Bloqueado</option>
+</select><br><br>
+
+Módulos:<br>
+
+<label>
+  <input type="checkbox" id="modCitas"> Citas
+</label><br>
+
+<label>
+  <input type="checkbox" id="modLanding"> Landing
+</label><br>
+
+<label>
+  <input type="checkbox" id="modRecordatorios"> Recordatorios
+</label><br><br>
+  
+  Logo:<br>
+  <input type="file" onchange="subirImagen('logo', this.files[0])"><br>
+
+  Portada:<br>
+  <input type="file" onchange="subirImagen('portada', this.files[0])"><br>
+
+  <br>
+  <button onclick="guardar()">Guardar cambios</button>
+  <button onclick="volver()">Volver</button>
+</div>
+
+<div id="lista"></div>
+
+<h3>Crear nuevo taller</h3>
+
+<input id="nombre" placeholder="Nombre" oninput="generarSlug()"><br>
+<input id="slug" placeholder="Slug (auto)"><br>
+<input id="telefono" placeholder="Teléfono"><br>
+
+<select id="plan">
+  <option value="basico">Básico</option>
+  <option value="premium">Premium</option>
+</select><br>
+
+<button onclick="crear()">Crear taller</button>
+
+<hr>
+
+
+<script>
+async function cargar(){
+  const res = await fetch('/api/admin/talleres');
+  const data = await res.json();
+
+  const cont = document.getElementById('lista');
+  cont.innerHTML = '';
+
+  data.data.forEach(t => {
+
+    cont.innerHTML += `
+      <div class="card-taller" data-nombre="${t.nombre}" style="border:1px solid #ccc;padding:10px;margin:10px;">
+        <strong>${t.nombre}</strong><br>
+        ${t.slug}<br>
+
+        <button onclick="seleccionar(${t.id})">Editar</button>
+      </div>
+    `;
+
+  });
+
+}
+
+async function toggle(id, modulo, valor){
+  const res = await fetch('/api/admin/talleres');
+  const data = await res.json();
+
+  const taller = data.data.find(t => t.id === id);
+
+  taller.modulos[modulo] = valor;
+
+  await fetch('/api/admin/talleres/' + id, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      plan: taller.plan,
+      estado: taller.estado,
+      modulos: taller.modulos
+    })
+  });
+
+  cargar();
+}
+
+cargar();
+
+
+async function crear(){
+  const nombre = document.getElementById('nombre').value;
+  const telefono = document.getElementById('telefono').value;
+  const slug = document.getElementById('slug').value;
+  const plan = document.getElementById('plan').value;
+  
+  if (!nombre || !slug) {
+  alert('Nombre y slug son obligatorios');
+  return;
+}
+
+  const res = await fetch('/api/admin/talleres', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      nombre,
+      telefono,
+      slug,
+      plan,
+      estado:'activo',
+      modulos:{
+        citas:true,
+        landing:true,
+        recordatorios:true
+      }
+    })
+  });
+
+  const data = await res.json();
+
+  if(!data.ok){
+    alert(data.message || 'Error');
+    return;
+  }
+
+  //  AQUÍ VA TODO
+  alert(`Taller creado 🚀
+
+Usuario: ${data.usuario}
+Contraseña: ${data.password}`);
+
+  document.getElementById('nombre').value = '';
+  document.getElementById('telefono').value = '';
+  document.getElementById('slug').value = '';
+
+  cargar();
+}
+
+function generarSlug(){
+  const nombre = document.getElementById('nombre').value;
+
+  const slug = nombre
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+
+  document.getElementById('slug').value = slug;
+}
+
+async function cambiarEstado(id, estado){
+  const res = await fetch('/api/admin/talleres');
+  const data = await res.json();
+
+  const taller = data.data.find(t => t.id === id);
+
+  await fetch('/api/admin/talleres/' + id, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      plan: taller.plan,
+      estado: estado,
+      modulos: taller.modulos
+    })
+  });
+
+  cargar();
+}
+
+async function editar(id, campo, valor){
+
+  await fetch('/api/admin/talleres/' + id, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      [campo]: valor
+    })
+  });
+}
+
+function filtrar(){
+  const texto = document.getElementById('buscar').value.toLowerCase();
+  const cards = document.querySelectorAll('.card-taller');
+
+  cards.forEach(card => {
+    const nombre = card.dataset.nombre.toLowerCase();
+    card.style.display = nombre.includes(texto) ? '' : 'none';
+  });
+}
+
+let tallerActual = null;
+
+async function seleccionar(id){
+  const res = await fetch('/api/admin/talleres');
+  const data = await res.json();
+
+  const t = data.data.find(x => x.id === id);
+  tallerActual = t;
+
+  document.getElementById('editorTaller').style.display = 'block';
+  document.getElementById('lista').style.display = 'none';
+
+  document.getElementById('editNombre').value = t.nombre || '';
+  document.getElementById('editTelefono').value = t.telefono || '';
+  document.getElementById('editDescripcion').value = t.descripcion || '';
+  document.getElementById('editServicios').value = t.servicios || '';
+  document.getElementById('editUbicacion').value = t.ubicacion || '';
+  document.getElementById('editHorario').value = t.horario || '';
+  // ESTADO
+document.getElementById('editEstado').value = t.estado || 'activo';
+
+// MÓDULOS
+const mods = typeof t.modulos === 'string'
+  ? JSON.parse(t.modulos)
+  : (t.modulos || {});
+
+document.getElementById('modCitas').checked = !!mods.citas;
+document.getElementById('modLanding').checked = !!mods.landing;
+document.getElementById('modRecordatorios').checked = !!mods.recordatorios;
+}
+function volver(){
+  document.getElementById('editorTaller').style.display = 'none';
+  document.getElementById('lista').style.display = 'block';
+}
+async function guardar(){
+  const nombre = document.getElementById('editNombre').value;
+  const telefono = document.getElementById('editTelefono').value;
+  const descripcion = document.getElementById('editDescripcion').value;
+  const servicios = document.getElementById('editServicios').value;
+  const ubicacion = document.getElementById('editUbicacion').value;
+  const horario = document.getElementById('editHorario').value;
+  const estado = document.getElementById('editEstado').value;
+
+const modulos = {
+  citas: document.getElementById('modCitas').checked,
+  landing: document.getElementById('modLanding').checked,
+  recordatorios: document.getElementById('modRecordatorios').checked
+};
+
+  await fetch('/api/admin/talleres/' + tallerActual.id, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+  nombre,
+  telefono,
+  descripcion,
+  servicios,
+  ubicacion,
+  horario,
+  estado,
+  modulos
+})
+  });
+
+  if (!nombre) {
+  alert('El nombre es obligatorio');
+  return;
+}
+  alert('Cambios guardados');
+  volver();
+  cargar();
+}
+async function subirImagen(tipo, archivo){
+
+  console.log('SUBIENDO A TALLER:', tallerActual.id); //  AQUÍ
+
+  if (!archivo) {
+    alert('Selecciona una imagen');
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append('imagen', archivo);
+  fd.append('tipo', tipo);
+
+  await fetch('/api/admin/talleres/' + tallerActual.id + '/upload', {
+    method: 'POST',
+    body: fd
+  });
+
+  alert(tipo + ' actualizado ✔');
+
+  cargar();
+}
+
+
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Reparaciones el Parra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f3f4f6;}
+header{background:#111827;color:white;}
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;}
+.top-bar strong{font-size:26px;}
+.login-icon{cursor:pointer;font-size:18px;}
+
+.cover{height:260px;background:url('/img/portada.png') center/cover no-repeat;display:flex;align-items:flex-end;justify-content:center;transition:.3s;}
+body.modo-panel .cover{height:120px;justify-content:flex-start;}
+
+.logo-circle{width:180px;height:180px;background:white;border-radius:50%;margin-bottom:-90px;border:4px solid white;overflow:hidden;transition:.3s;}
+body.modo-panel .logo-circle{width:90px;height:90px;margin:0 0 -45px 24px;}
+.logo-circle img{width:100%;height:100%;object-fit:cover;}
+
+main{padding:120px 0 0 0;}
+body.modo-panel main{padding-top:72px;}
+
+.hidden{display:none!important;}
+.landing-section{margin-bottom:48px;padding:0 24px;max-width:1100px;margin:auto;}
+
+#loginSection{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.box{background:white;border-radius:8px;padding:24px;width:320px;}
+#loginSection input{width:100%;padding:10px;margin-bottom:14px;border-radius:6px;border:1px solid #d1d5db;}
+#loginSection button{width:100%;padding:10px;cursor:pointer;}
+
+.panel-app{display:flex;height:calc(100vh - 72px);}
+.sidebar{width:260px;background:#111827;color:white;display:flex;flex-direction:column;}
+.sidebar-header{padding:24px 20px;font-size:22px;font-weight:bold;}
+.menu button{background:none;border:none;color:white;padding:16px 20px;text-align:left;cursor:pointer;font-size:15px;border-left:5px solid transparent;}
+.menu button:hover{background:rgba(255,255,255,.1);}
+.m-citas{border-left-color:#eab308;}
+.m-registro{border-left-color:#2563eb;}
+.m-servicio{border-left-color:#64748b;}
+.m-nuevo-recordatorio{border-left-color:#dc2626;}
+.m-recordatorios{border-left-color:#f97316;}
+.m-historial{border-left-color:#15803d;}
+
+.contenido{flex:1;position:relative;padding:40px;overflow:auto;background:#f3f4f6;}
+.modulo{position:relative;background:white;border-radius:12px;padding:32px;max-width:1100px;}
+
+.servicio-item{padding:10px;margin-bottom:10px;border-radius:6px;border:1px solid #ddd;}
+.servicio-garantia{border-color:#16a34a;background:#ecfdf5;}
+.servicio-label{font-size:12px;font-weight:bold;color:#16a34a;}
+
+.fotos-wrap{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+.foto-box{position:relative;}
+.foto-box img{width:120px;height:120px;object-fit:cover;border-radius:8px;border:1px solid #ccc;}
+.delete-foto{position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;font-size:12px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.modal-img{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.8);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:3000;
+}
+
+.modal-img img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:12px;
+  box-shadow:0 0 30px rgba(0,0,0,.6);
+}
+
+.cerrar-modal{
+  position:absolute;
+  top:20px;
+  right:30px;
+  font-size:30px;
+  color:white;
+  cursor:pointer;
+}
+.btn-borrar-foto{
+  position:absolute;
+  bottom:30px;
+  background:#dc2626;
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.btn-borrar-foto:hover{
+  background:#b91c1c;
+}
+.power-btn{
+  background:none;
+  border:none;
+  font-size:22px;
+  cursor:pointer;
+  color:white;
+  margin-left:10px;
+}
+.power-btn:hover{
+  color:#ef4444;
+}
+.recordatorio-servicio{
+  color:#16a34a;
+  font-weight:bold;
+}
+.landing-cita{
+  position:fixed;
+  right:0;
+  top:0;
+  width:360px;
+  height:100vh;
+  background:white;
+  padding:24px;
+  transform:translateX(100%);
+  transition:.3s;
+  z-index:2000;
+}
+.landing-cita.activo{
+  transform:translateX(0);
+}
+
+
+
+
+</style>
+
+<!--html-->
+</head>
+
+<body>
+
+<header>
+  <div class="top-bar">
+    <strong class="header-nombre"></strong>
+    <div>
+      <span class="login-icon" id="openLogin">👤</span>
+      <button id="logoutBtn" class="power-btn">⏻</button>
+    </div>
+  </div>
+
+  <div class="cover">
+    <div class="logo-circle"><img src="/img/logo.png"></div>
+  </div>
+</header>
+
+<main>
+
+<section id="publicSection">
+  <div class="landing-grid">
+
+    <div class="landing-info">
+  <h2></h2>
+  <p class="landing-descripcion"></p>
+  <p class="landing-telefono"></p>
+  <p class="landing-horario"></p>
+  <p>
+  <a id="linkUbicacion" target="_blank">📍 Ver ubicación</a>
+</p>
+</div>
+
+    <div class="landing-servicios">
+      <h3>Servicios</h3>
+      <ul></ul>
+    </div>
+
+   <button id="toggleCita" class="btn-toggle-cita">Agendar cita</button>
+
+<div class="landing-cita">
+  <h3>Agenda tu cita</h3>
+      <input id="citaNombre" placeholder="Nombre completo"><br><br>
+<input id="citaTelefono" placeholder="Teléfono"><br><br>
+<input id="citaCorreo" placeholder="Correo (opcional)"><br><br>
+
+<label>Fecha</label><br>
+<input type="date" id="citaFecha"><br><br>
+
+<label>Hora</label><br>
+<input type="time" id="citaHora"><br><br>
+
+<textarea id="citaMensaje" placeholder="Describe el problema"></textarea><br><br>
+
+<button id="btnAgendar">Agendar cita</button>
+<p id="msgCita" style="display:none;color:green;font-weight:bold;"></p>
+    </div>
+
+  </div>
+</section>
+
+
+<section id="panelSection" class="hidden">
+<div class="panel-app">
+
+<aside class="sidebar">
+<div class="sidebar-header">Centro de Control</div>
+<nav class="menu">
+<button class="m-citas" data-modulo="citas">Citas</button>
+<button class="m-registro" data-modulo="registro">Registro nuevo</button>
+<button class="m-servicio" data-modulo="servicio">Registrar servicio</button>
+<button class="m-nuevo-recordatorio" data-modulo="nuevo-recordatorio">Nuevo recordatorio</button>
+<button class="m-recordatorios" data-modulo="recordatorios">Recordatorios</button>
+<button class="m-historial" data-modulo="historial">Historial y garantías</button>
+</nav>
+</aside>
+
+<div class="contenido">
+
+<section id="citas" class="modulo hidden">Citas</section>
+<section id="registro" class="modulo hidden">
+<h2>Registro nuevo</h2>
+
+<form class="box" id="formRegistro">
+
+<h3>Cliente</h3>
+<input id="regClienteNombre" placeholder="Nombre del cliente">
+<input id="regClienteTelefono" placeholder="Teléfono">
+<input id="regClienteCorreo" placeholder="Correo">
+
+<h3>Vehículo</h3>
+<input id="regVin" placeholder="VIN">
+<input id="regMarca" placeholder="Marca">
+<input id="regModelo" placeholder="Modelo">
+<input id="regAnio" type="number" placeholder="Año">
+
+<h3>Servicio inicial</h3>
+<input id="regServicioDesc" placeholder="Descripción del servicio">
+<input id="regServicioCosto" type="number" placeholder="Costo">
+<input type="date" id="regServicioFecha">
+<input id="regServicioKm" type="number" placeholder="Kilometraje">
+
+<select id="regServicioUnidad">
+  <option value="km">km</option>
+  <option value="millas">millas</option>
+</select>
+
+<input id="regGarantia" type="number" placeholder="Garantía (meses)">
+
+<h3>Fotos</h3>
+<input type="file" id="regFotosServicio" multiple accept="image/*">
+<p id="estadoFotosRegistro"></p>
+
+<br>
+<button type="button" id="guardarRegistro">Guardar registro</button>
+
+</form>
+
+</section>
+
+<section id="servicio" class="modulo hidden">
+<h2>Registrar servicio</h2>
+<form class="box" id="formServicio">
+<input id="servVin" placeholder="VIN o placa"><br><br>
+<input id="servDescripcion" placeholder="Descripción"><br><br>
+<input id="servCosto" type="number" placeholder="Costo"><br><br>
+<input type="date" id="servFecha"><br><br>
+<input id="servKm" type="number" placeholder="Kilometraje"><br><br>
+
+<select id="servUnidad">
+<option value="km">km</option>
+<option value="millas">millas</option>
+</select><br><br>
+
+<input type="number" id="servGarantia" placeholder="Garantía meses"><br><br>
+
+<label>Fotos</label><br>
+<input type="file" id="fotosServicio" multiple accept="image/*"><br>
+<p id="estadoFotos"></p>
+
+<button type="button" id="guardarServicio">Guardar servicio</button>
+</form>
+</section>
+
+<section id="nuevo-recordatorio" class="modulo hidden">
+  <h2>Nuevo recordatorio</h2>
+
+  <form class="box" id="formRecordatorio">
+    <input id="recNombre" placeholder="Nombre del cliente"><br><br>
+    <input id="recTelefono" placeholder="Teléfono"><br><br>
+    <input id="recCorreo" placeholder="Correo"><br><br>
+    <input id="recVehiculo" placeholder="Vehículo"><br><br>
+    <input id="recServicio" placeholder="Servicio"><br><br>
+    <input type="date" id="recFecha"><br><br>
+
+    <button type="button" id="guardarRecordatorio">Guardar recordatorio</button>
+  </form>
+</section>
+
+<section id="recordatorios" class="modulo hidden">
+  <h2>Recordatorios pendientes</h2>
+  <div id="listaRecordatorios"></div>
+</section>
+
+
+<section id="historial" class="modulo hidden">
+<h2>Historial y Garantías</h2>
+<br>
+<input id="buscarFolio" placeholder="Buscar por folio (Ej: T1-000001)">
+<button id="btnBuscarFolio">Buscar</button>
+<div class="box">
+<input id="clienteNombre" placeholder="Nombre">
+<button id="buscarClienteBtn">Buscar</button>
+</div>
+
+<div class="box hidden" id="clientesResultados"><ul id="listaClientes"></ul></div>
+<div class="box hidden" id="vehiculosResultados"><ul id="listaVehiculos"></ul></div>
+<div class="box hidden" id="serviciosResultados"><div id="listaServicios"></div></div>
+</section>
+
+</div>
+</div>
+</section>
+
+</main>
+<!-- Modal imagen -->
+<div id="modalImagen" class="hidden modal-img">
+  <span id="cerrarModal" class="cerrar-modal">✕</span>
+  <img id="imagenModal" src="">
+   <button id="btnBorrarFoto" class="btn-borrar-foto"> Eliminar</button>
+</div>
+
+
+<section id="loginSection" class="hidden">
+  <div class="box">
+    <h3>Acceso Taller</h3>
+    <input id="loginEmail" placeholder="Usuario">
+    <input id="loginPassword" type="password" placeholder="Contraseña">
+    <button id="loginBtn">Ingresar</button>
+  </div>
+</section>
+
+ 
+
+<!-- JS -->
+
+<script>
+const slug = window.location.pathname.split('/')[2];
+</script>
+
+<script>
+async function apiFetch(url, options = {}) {
+  const res = await fetch(url, {
+    credentials: 'include',
+    ...options
+  });
+
+  const data = await res.json();
+
+  if (res.status === 403 && data.message?.includes('Taller inactivo')) {
+    document.body.innerHTML = `
+      <div style="
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        font-family:Arial;
+        background:#111;
+        color:white;
+        text-align:center;
+      ">
+        <div>
+          <h1>Taller inactivo</h1>
+          <p>Contacte a su proveedor</p>
+        </div>
+      </div>
+    `;
+    throw new Error('Taller bloqueado');
+  }
+
+  return data;
+}
+</script>
+
+<script>
+async function cargarTaller() {
+  try {
+
+    if (!slug) {
+      console.error('No hay slug en la URL');
+      return;
+    }
+
+    const data = await apiFetch(`/api/taller/${slug}`);
+
+    if (!data.ok) {
+      alert('Taller no encontrado');
+      return;
+    }
+
+ const t = data.taller;
+
+console.log('LOGO RAW:', t.logo);
+console.log('PORTADA RAW:', t.portada);
+
+//  RUTA INTELIGENTE
+const logo = t.logo;
+const portada = t.portada;
+
+const rutaLogo = logo?.includes('talleres/')
+  ? '/uploads/' + logo
+  : '/uploads/talleres/' + logo;
+
+const rutaPortada = portada?.includes('talleres/')
+  ? '/uploads/' + portada
+  : '/uploads/talleres/' + portada;
+
+// LOGO
+if (t.logo) {
+  const logoImg = document.querySelector('.logo-circle img');
+
+  const ruta1 = `/uploads/talleres/${t.logo}`;
+  const ruta2 = `/uploads/${t.logo}`;
+
+  if (logoImg) {
+    logoImg.src = ruta1;
+
+    logoImg.onerror = () => {
+      console.log('fallback logo');
+      logoImg.src = ruta2;
+    };
+  }
+}
+
+// PORTADA
+if (t.portada) {
+  const cover = document.querySelector('.cover');
+
+  const ruta1 = `/uploads/talleres/${t.portada}`;
+  const ruta2 = `/uploads/${t.portada}`;
+
+  const img = new Image();
+  img.src = ruta1;
+
+  img.onload = () => {
+    cover.style.backgroundImage = `url('${ruta1}')`;
+  };
+
+  img.onerror = () => {
+    console.log('fallback portada');
+    cover.style.backgroundImage = `url('${ruta2}')`;
+  };
+}
+
+const modulos = typeof t.modulos === 'string'
+  ? JSON.parse(t.modulos)
+  : (t.modulos || {});
+
+  
+//  ELEMENTOS (UNA SOLA VEZ)
+const btn = document.getElementById('toggleCita');
+const panel = document.querySelector('.landing-cita');
+const btnNuevo = document.querySelector('[data-modulo="nuevo-recordatorio"]');
+const btnLista = document.querySelector('[data-modulo="recordatorios"]');
+const info = document.querySelector('.landing-info');
+const servicios = document.querySelector('.landing-servicios');
+
+// =======================
+// CITAS
+// =======================
+if (!modulos.citas) {
+  if (btn) btn.style.display = 'none';
+  if (panel) panel.style.display = 'none';
+} else {
+  if (btn) btn.style.display = '';
+  if (panel) panel.style.display = '';
+}
+
+// =======================
+// RECORDATORIOS
+// =======================
+if (!modulos.recordatorios) {
+  if (btnNuevo) btnNuevo.style.display = 'none';
+  if (btnLista) btnLista.style.display = 'none';
+} else {
+  if (btnNuevo) btnNuevo.style.display = '';
+  if (btnLista) btnLista.style.display = '';
+}
+
+// =======================
+// LANDING
+// =======================
+if (!modulos.landing) {
+  if (info) info.style.display = 'none';
+  if (servicios) servicios.style.display = 'none';
+  if (btn) btn.style.display = 'none';
+  if (panel) panel.style.display = 'none';
+} else {
+  if (info) info.style.display = '';
+  if (servicios) servicios.style.display = '';
+}
+
+// HEADER
+document.querySelector('.header-nombre').textContent = t.nombre;
+
+// INFO
+document.querySelector('.landing-info h2').textContent = t.nombre;
+document.querySelector('.landing-descripcion').textContent = t.descripcion;
+document.querySelector('.landing-telefono').textContent = '📞 ' + t.telefono;
+document.querySelector('.landing-horario').textContent = t.horario || '';
+
+// SERVICIOS
+const ul = document.querySelector('.landing-servicios ul');
+ul.innerHTML = '';
+
+(t.servicios || '').split(',').forEach(s => {
+  const li = document.createElement('li');
+  li.textContent = s.trim();
+  ul.appendChild(li);
+});
+
+// UBICACIÓN
+document.querySelector('#linkUbicacion').href = t.ubicacion;
+document.title = `${t.nombre} | Getmexora`;
+} catch (err) {
+  console.error('Error cargando taller:', err);
+}
+}  
+//  ESTO VA AFUERA
+window.addEventListener('DOMContentLoaded', async () => {
+
+  // 1. verificar sesión
+  const me = await apiFetch('/api/auth/me');
+
+  if(me.ok){
+    //  usuario logueado → panel
+    loginSection.classList.add('hidden');
+    publicSection.classList.add('hidden');
+    panel.classList.remove('hidden');
+    document.body.classList.add('modo-panel');
+  }
+
+  //  SIEMPRE cargar taller 
+  await cargarTaller();
+});
+</script>
+
+<!-- <script src="/js/landing-citas.js"></script> -->
+
+
+<script>
+
+function formatearFecha(fechaISO) {
+  const fecha = new Date(fechaISO);
+  return fecha.toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+}
+
+let fotosTemporales = [];
+
+// ELEMENTOS
+const openLogin = document.getElementById('openLogin');
+const loginSection = document.getElementById('loginSection');
+const loginBtn = document.getElementById('loginBtn');
+const panel = document.getElementById('panelSection');
+const publicSection = document.getElementById('publicSection');
+const botones = document.querySelectorAll('.menu button');
+const modulos = document.querySelectorAll('.modulo');
+const logoutBtn = document.getElementById('logoutBtn');
+
+const estadoFotos = document.getElementById('estadoFotos');
+const formServicio = document.getElementById('formServicio');
+const formRegistro = document.getElementById('formRegistro');
+
+// CLIENTE
+const regClienteNombre = document.getElementById('regClienteNombre');
+const regClienteTelefono = document.getElementById('regClienteTelefono');
+const regClienteCorreo = document.getElementById('regClienteCorreo');
+
+// VEHÍCULO
+const regVin = document.getElementById('regVin');
+const regMarca = document.getElementById('regMarca');
+const regModelo = document.getElementById('regModelo');
+const regAnio = document.getElementById('regAnio');
+
+//  SERVICIO (ESTO FALTABA Y ES CLAVE)
+const regServicioDesc = document.getElementById('regServicioDesc');
+const regServicioCosto = document.getElementById('regServicioCosto');
+const regServicioFecha = document.getElementById('regServicioFecha');
+const regServicioKm = document.getElementById('regServicioKm');
+const regServicioUnidad = document.getElementById('regServicioUnidad');
+const regGarantia = document.getElementById('regGarantia');
+
+
+// ==========================
+// LOGIN
+// ==========================
+openLogin.onclick = () => loginSection.classList.toggle('hidden');
+
+loginBtn.onclick = async () => {
+  const email = document.querySelector('#loginEmail').value;
+  const password = document.querySelector('#loginPassword').value;
+
+  const data = await apiFetch('/api/auth/login', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ email, password })
+  });
+
+  if(!data.ok){
+    alert(data.message || 'Error al iniciar sesión');
+    return;
+  }
+
+  //  ESPERAR A QUE LA SESIÓN EXISTA REALMENTE
+  let intentos = 0;
+  let sesionOK = false;
+
+  while(intentos < 5 && !sesionOK){
+    const me = await apiFetch('/api/auth/me');
+
+    if(me.ok){
+      sesionOK = true;
+      break;
+    }
+
+    await new Promise(r => setTimeout(r, 200)); // espera 200ms
+    intentos++;
+  }
+
+  if(!sesionOK){
+    alert('Error al validar sesión');
+    return;
+  }
+
+  //  AHORA SÍ CAMBIAS UI
+  loginSection.classList.add('hidden');
+  publicSection.classList.add('hidden');
+  panel.classList.remove('hidden');
+  document.body.classList.add('modo-panel');
+
+  await cargarTaller();
+};
+
+
+// ==========================
+// LOGOUT
+// ==========================
+logoutBtn.onclick = async () => {
+  await apiFetch('/api/auth/logout', { method: 'POST' });
+
+  panel.classList.add('hidden');
+  publicSection.classList.remove('hidden');
+  document.body.classList.remove('modo-panel');
+};
+
+
+// ==========================
+// NAVEGACIÓN PANEL
+// ==========================
+botones.forEach(btn => btn.onclick = () => {
+  modulos.forEach(m => m.classList.add('hidden'));
+
+  const modulo = document.getElementById(btn.dataset.modulo);
+  modulo.classList.remove('hidden');
+
+  if (btn.dataset.modulo === 'recordatorios') {
+    cargarRecordatorios();
+  }
+
+  if (btn.dataset.modulo === 'citas') {
+    cargarCitas();
+  }
+});
+
+</script>
+<script>
+document.getElementById('fotosServicio').onchange = e=>{
+  fotosTemporales = Array.from(e.target.files);
+  estadoFotos.textContent = `${fotosTemporales.length} fotos listas`;
+};
+
+guardarServicio.onclick = async ()=> {
+  const data = await apiFetch('/api/servicios', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      vin: servVin.value,
+      descripcion: servDescripcion.value,
+      costo: servCosto.value,
+      fecha_servicio: servFecha.value,
+      kilometraje: servKm.value,
+      unidad: servUnidad.value,
+      garantia_meses: servGarantia.value
+    })
+  });
+
+  if(!data.ok){
+    alert(data.message || 'Error al guardar servicio');
+    return;
+  }
+
+  if (fotosTemporales.length) {
+    const fd = new FormData();
+    fotosTemporales.forEach(f => fd.append('fotos', f));
+    await apiFetch(`/api/servicios/${data.id}/fotos`, {
+      method: 'POST',
+      body: fd
+    });
+  }
+
+  alert('Servicio guardado');
+  formServicio.reset();
+  fotosTemporales = [];
+  estadoFotos.textContent = '';
+};
+// ==============================
+// HISTORIAL Y GARANTÍAS
+// ==============================
+
+const buscarClienteBtn = document.getElementById('buscarClienteBtn');
+const clienteNombre = document.getElementById('clienteNombre');
+
+const clientesResultados = document.getElementById('clientesResultados');
+const listaClientes = document.getElementById('listaClientes');
+
+const vehiculosResultados = document.getElementById('vehiculosResultados');
+const listaVehiculos = document.getElementById('listaVehiculos');
+
+const serviciosResultados = document.getElementById('serviciosResultados');
+const listaServicios = document.getElementById('listaServicios');
+
+const btnBuscarFolio = document.getElementById('btnBuscarFolio');
+
+btnBuscarFolio.onclick = async () => {
+  const folio = document.getElementById('buscarFolio').value.trim();
+
+  if (!folio) {
+    alert('Escribe un folio');
+    return;
+  }
+
+  const resp = await apiFetch(`/api/servicios/folio/${folio}`);
+
+  if (!resp.ok) {
+    alert('No encontrado');
+    return;
+  }
+
+  imprimirServicio(resp.data.id);
+};
+
+// 1️ Buscar clientes
+buscarClienteBtn.onclick = async () => {
+  const nombre = clienteNombre.value.trim();
+  if (!nombre) return alert('Escribe un nombre');
+
+  listaClientes.innerHTML = '';
+  listaVehiculos.innerHTML = '';
+  listaServicios.innerHTML = '';
+
+  clientesResultados.classList.add('hidden');
+  vehiculosResultados.classList.add('hidden');
+  serviciosResultados.classList.add('hidden');
+
+  const data = await apiFetch(`/api/clientes/buscar?nombre=${encodeURIComponent(nombre)}`);
+
+  const clientes = data.clientes;
+
+  if (!clientes.length) {
+    alert('No se encontraron clientes');
+    return;
+  }
+
+  clientes.forEach(c => {
+    const li = document.createElement('li');
+    li.textContent = `${c.nombre} - ${c.telefono || ''}`;
+    li.style.cursor = 'pointer';
+    li.onclick = () => cargarVehiculos(c.id);
+    listaClientes.appendChild(li);
+  });
+
+  clientesResultados.classList.remove('hidden');
+};
+
+// 2️ Cargar vehículos del cliente
+async function cargarVehiculos(clienteId) {
+  listaVehiculos.innerHTML = '';
+  listaServicios.innerHTML = '';
+
+  vehiculosResultados.classList.add('hidden');
+  serviciosResultados.classList.add('hidden');
+
+  const data = await apiFetch(`/api/vehiculos/cliente/${clienteId}`);
+  const vehiculos = data.vehiculos;
+
+  if (!vehiculos || !vehiculos.length) {
+    listaVehiculos.innerHTML = '<li>Este cliente no tiene vehículos</li>';
+    vehiculosResultados.classList.remove('hidden');
+    return;
+  }
+
+  vehiculos.forEach(v => {
+    const li = document.createElement('li');
+    li.textContent = `${v.marca || ''} ${v.modelo || ''} ${v.anio || ''} - VIN: ${v.vin}`;
+    li.style.cursor = 'pointer';
+    li.onclick = () => cargarServicios(v.id);
+    listaVehiculos.appendChild(li);
+  });
+
+  vehiculosResultados.classList.remove('hidden');
+}
+
+
+// 3️ Cargar historial y garantías
+async function cargarServicios(vehiculoId) {
+  listaServicios.innerHTML = '';
+  serviciosResultados.classList.add('hidden');
+
+  const servicios = await apiFetch(`/api/vehiculos/${vehiculoId}/servicios`);
+
+  if (!servicios.length) {
+    listaServicios.innerHTML = '<p>No hay servicios registrados.</p>';
+    serviciosResultados.classList.remove('hidden');
+    return;
+  }
+
+  servicios.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'servicio-item';
+
+    if (s.en_garantia) {
+      div.classList.add('servicio-garantia');
+    }
+
+    div.innerHTML = `
+  <strong>${s.descripcion}</strong><br>
+  Fecha: ${formatearFecha(s.fecha_servicio)}<br>
+  Kilometraje: ${s.kilometraje} ${s.unidad}<br>
+  Costo: $${s.costo}<br>
+  Garantía: ${s.garantia_meses} meses
+  ${s.en_garantia ? '<div class="servicio-label">GARANTÍA VIGENTE</div>' : ''}
+
+  <button onclick="imprimirServicio(${s.id})" style="margin-top:10px;">
+    🧾 Imprimir nota
+  </button>
+
+  <div class="fotos-wrap" id="fotos-${s.id}"></div>
+`;
+
+    listaServicios.appendChild(div);
+    cargarFotosServicio(s.id);
+  });
+
+  serviciosResultados.classList.remove('hidden');
+}
+// Cargar fotos de un servicio
+async function cargarFotosServicio(servicioId) {
+  const contenedor = document.getElementById(`fotos-${servicioId}`);
+  if (!contenedor) return;
+
+  const resp = await apiFetch(`/api/servicios/${servicioId}/fotos`);
+  const fotos = resp.fotos;
+
+  if (!Array.isArray(fotos)) return;
+  if (!fotos.length) return;
+
+  const BASE_URL = "http://localhost:4000";
+
+  fotos.forEach(f => {
+    const box = document.createElement('div');
+    box.className = 'foto-box';
+
+    const imgSrc = `${BASE_URL}/uploads/servicios/${servicioId}/${f.archivo}`;
+
+    box.innerHTML = `<img src="${imgSrc}" style="cursor:pointer">`;
+
+    box.querySelector('img').onclick = () => {
+      abrirImagen(imgSrc, f.id, box);
+    };
+
+    contenedor.appendChild(box);
+  });
+}
+ 
+
+</script>
+<script>
+const modalImagen = document.getElementById('modalImagen');
+const imagenModal = document.getElementById('imagenModal');
+const cerrarModal = document.getElementById('cerrarModal');
+const btnBorrarFoto = document.getElementById('btnBorrarFoto');
+
+let fotoActualId = null;
+let fotoActualBox = null;
+
+//  ESTA ES LA FUNCIÓN
+window.abrirImagen = function (src, fotoId, box) {
+  imagenModal.src = src;
+  fotoActualId = fotoId;
+  fotoActualBox = box;
+  modalImagen.classList.remove('hidden');
+};
+
+cerrarModal.onclick = () => {
+  modalImagen.classList.add('hidden');
+  imagenModal.src = '';
+  fotoActualId = null;
+  fotoActualBox = null;
+};
+
+modalImagen.onclick = e => {
+  if (e.target === modalImagen) {
+    cerrarModal.onclick();
+  }
+};
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    cerrarModal.onclick();
+  }
+});
+
+btnBorrarFoto.onclick = async () => {
+  if (!fotoActualId) return;
+
+  if (!confirm('¿Eliminar esta foto?')) return;
+
+  try {
+    const data = await apiFetch(`/api/servicios/fotos/${fotoActualId}`, {
+      method: 'DELETE'
+    });
+
+    if (!data.ok) {
+      alert('No se pudo eliminar la foto');
+      return;
+    }
+
+    if (fotoActualBox) {
+      fotoActualBox.remove();
+    }
+
+    cerrarModal.onclick();
+
+  } catch (err) {
+    console.error(err);
+    alert('Error al eliminar foto');
+  }
+};
+</script>
+
+<script>
+// ==============================
+// REGISTRO NUEVO (CORREGIDO)
+// ==============================
+
+let fotosRegistro = [];
+const estadoFotosRegistro = document.getElementById('estadoFotosRegistro');
+
+document.getElementById('regFotosServicio').onchange = e => {
+  fotosRegistro = Array.from(e.target.files);
+  estadoFotosRegistro.textContent = `${fotosRegistro.length} fotos listas`;
+};
+
+document.getElementById('guardarRegistro').onclick = async () => {
+
+  // =====================
+  // ARMAR PAYLOAD
+  // =====================
+  const payload = {
+    cliente: {
+      nombre: regClienteNombre.value,
+      telefono: regClienteTelefono.value,
+      correo: regClienteCorreo.value
+    },
+    vehiculo: {
+      vin: regVin.value,
+      marca: regMarca.value,
+      modelo: regModelo.value,
+      anio: regAnio.value
+    },
+    servicio: {
+      descripcion: regServicioDesc.value,
+      costo: regServicioCosto.value,
+      fecha_servicio: regServicioFecha.value,
+      kilometraje: regServicioKm.value,
+      unidad: regServicioUnidad.value,
+      garantia_meses: regGarantia.value
+    }
+  };
+
+  // =====================
+  // ENVIAR TODO EN UNA SOLA REQUEST
+  // =====================
+  const data = await apiFetch('/api/registro-nuevo', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+
+  if(!data.ok){
+    alert(data.message || 'Error en registro');
+    return;
+  }
+
+  // =====================
+  // SUBIR FOTOS (SI HAY)
+  // =====================
+  if(fotosRegistro.length){
+    const fd = new FormData();
+    fotosRegistro.forEach(f => fd.append('fotos', f));
+
+    await apiFetch(`/api/servicios/${data.servicio_id}/fotos`, {
+      method: 'POST',
+      body: fd
+    });
+  }
+
+  // =====================
+  // ÉXITO
+  // =====================
+  alert('Registro completo guardado');
+
+  formRegistro.reset();
+  fotosRegistro = [];
+  estadoFotosRegistro.textContent = '';
+};
+</script>
+
+<script>
+(async ()=>{
+  const data = await apiFetch('/api/auth/me');
+
+  if(data.ok){
+    loginSection.classList.add('hidden');
+    publicSection.classList.add('hidden');
+    panel.classList.remove('hidden');
+    document.body.classList.add('modo-panel');
+
+    await cargarTaller(); //  ESTA LÍNEA FALTABA
+  }
+})();
+
+// ==============================
+// RECORDATORIOS
+// ==============================
+
+const guardarRecordatorioBtn = document.getElementById('guardarRecordatorio');
+
+guardarRecordatorioBtn.onclick = async () => {
+  const payload = {
+    nombre_cliente: recNombre.value,
+    telefono: recTelefono.value,
+    correo: recCorreo.value,
+    vehiculo: recVehiculo.value,
+    servicio: recServicio.value,
+    fecha_recordatorio: recFecha.value
+  };
+
+  const data = await apiFetch('/api/recordatorios', {
+    method: 'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+
+  if(!data.ok){
+    alert('Error al guardar recordatorio');
+    return;
+  }
+
+  alert('Recordatorio guardado');
+  formRecordatorio.reset();
+};
+
+async function cargarRecordatorios(){
+  console.log('ENTRÓ A RECORDATORIOS');
+
+  const resp = await apiFetch('/api/recordatorios/pendientes');
+  console.log('RESP:', resp);
+
+  const data = resp.data;
+
+  listaRecordatorios.innerHTML = '';
+
+  if(!data || !data.length){
+    listaRecordatorios.innerHTML = '<p>No hay recordatorios.</p>';
+    return;
+  }
+
+  data.forEach(r=>{
+    const div = document.createElement('div');
+    div.className = 'servicio-item';
+
+    div.innerHTML = `
+      <strong>${r.nombre_cliente}</strong><br>
+      Tel: ${r.telefono || 'N/A'}<br>
+      Correo: ${r.correo || 'N/A'}<br>
+      ${r.vehiculo}<br>
+      <span class="recordatorio-servicio">${r.servicio}</span><br>
+      Fecha: ${formatearFecha(r.fecha_recordatorio)}<br><br>
+      <button onclick="eliminarRecordatorio(${r.id})">Eliminar</button>
+    `;
+
+    listaRecordatorios.appendChild(div);
+  });
+}
+async function eliminarRecordatorio(id){
+  if(!confirm('¿Eliminar este recordatorio?')) return;
+
+  const data = await apiFetch(`/api/recordatorios/${id}`, {
+    method: 'DELETE'
+  });
+
+  if(!data.ok){
+    alert('Error al eliminar');
+    return;
+  }
+
+  cargarRecordatorios(); // refresca lista
+}
+// citas
+
+async function cargarCitas(){
+  const data = await apiFetch('/api/citas');
+
+  const contenedor = document.getElementById('citas');
+  contenedor.innerHTML = '<h2>Citas</h2>';
+
+  if(!data.data.length){
+    contenedor.innerHTML += '<p>No hay citas pendientes.</p>';
+    return;
+  }
+
+  data.data.forEach(c => {
+
+    let fechaMostrar = c.estado === 'confirmada'
+      ? `${formatearFecha(c.fecha_confirmada)} ${c.hora_confirmada}`
+      : `${formatearFecha(c.fecha_solicitada)} ${c.hora_solicitada}`;
+
+    contenedor.innerHTML += `
+      <div class="servicio-item">
+        <strong>${c.nombre}</strong><br>
+        Tel: ${c.telefono}<br>
+        Fecha: ${fechaMostrar}<br>
+        Estado: <strong>${c.estado}</strong><br><br>
+        <button onclick="confirmarCita(${c.id})">Confirmar</button>
+        <button onclick="reprogramarCita(${c.id})">Reprogramar</button>
+        <button onclick="atenderCita(${c.id})">Atender</button>
+      </div>
+    `;
+  });
+}
+async function atenderCita(id){
+  await apiFetch(`/api/citas/${id}/atender`, {
+    method: 'PATCH',
+    credentials: 'include'
+  });
+
+  window.citaActual = id;
+
+  modulos.forEach(m => m.classList.add('hidden'));
+  document.getElementById('registro').classList.remove('hidden');
+
+  const data = await apiFetch(`/api/citas/${id}`);
+
+  if(data.ok){
+    regClienteNombre.value = data.data.nombre;
+    regClienteTelefono.value = data.data.telefono;
+    regClienteCorreo.value = data.data.correo || '';
+  }
+}
+
+async function confirmarCita(id){
+  const fecha = prompt("Fecha (YYYY-MM-DD)");
+  const hora = prompt("Hora (HH:MM)");
+
+  if(!fecha || !hora) return;
+
+  const data = await apiFetch(`/api/citas/${id}/confirmar`, {
+    method: 'PATCH',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ fecha_confirmada: fecha, hora_confirmada: hora })
+  });
+
+  alert(data.message);
+  cargarCitas();
+}
+
+async function reprogramarCita(id){
+  const data = await apiFetch(`/api/citas/${id}/reprogramar`, {
+    method: 'PATCH'
+  });
+
+  alert(data.message);
+  cargarCitas();
+}
+
+
+btnAgendar.onclick = async () => {
+  const payload = {
+    slug: slug,
+    nombre: citaNombre.value,
+    telefono: citaTelefono.value,
+    correo: citaCorreo.value,
+    fecha_solicitada: citaFecha.value,
+    hora_solicitada: citaHora.value,
+    mensaje: citaMensaje.value
+  };
+
+  if(!payload.nombre || !payload.telefono || !payload.fecha_solicitada || !payload.hora_solicitada){
+    msgCita.style.display = 'block';
+    msgCita.style.color = 'red';
+    msgCita.textContent = "Completa los campos obligatorios.";
+    return;
+  }
+
+  const data = await apiFetch('/api/citas/publica', {
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body: JSON.stringify(payload)
+});
+
+  if(data.ok){
+    msgCita.style.display = 'block';
+    msgCita.style.color = 'green';
+    msgCita.textContent = "¡Cita registrada correctamente! Te esperamos pronto.";
+
+    // limpiar form
+    citaNombre.value = '';
+    citaTelefono.value = '';
+    citaCorreo.value = '';
+    citaFecha.value = '';
+    citaHora.value = '';
+    citaMensaje.value = '';
+
+    // cerrar panel después de 1.5s
+    setTimeout(()=>{
+      document.querySelector('.landing-cita').classList.remove('activo');
+      msgCita.style.display = 'none';
+    },1500);
+
+  } else {
+    msgCita.style.display = 'block';
+    msgCita.style.color = 'red';
+    msgCita.textContent = data.message || "Error al agendar.";
+  }
+};
+
+toggleCita.onclick = () => {
+  document.querySelector('.landing-cita').classList.toggle('activo');
+};
+
+window.imprimirServicio = async function(servicioId){
+
+  const resp = await apiFetch(`/api/servicios/${servicioId}`);
+  const s = resp.data;
+
+  const nombreTaller = document.querySelector('.header-nombre').textContent;
+  const logo = document.querySelector('.logo-circle img').src;
+
+  const w = window.open('', '_blank');
+
+  let html = `
+  <html>
+  <head>
+    <title>Nota de servicio</title>
+    <style>
+      body { font-family: Arial; padding: 40px; color: #111; }
+      .header { display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:10px; }
+      .logo { width:80px; }
+      .titulo { font-size:22px; font-weight:bold; }
+      .section { margin-top:20px; }
+      .box { border:1px solid #ccc; padding:12px; border-radius:6px; }
+      .garantia { color: green; font-weight:bold; }
+      .total { text-align:right; font-size:18px; margin-top:20px; font-weight:bold; }
+      .footer { margin-top:40px; font-size:12px; text-align:center; }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="header">
+  <div>
+    <img src="${logo}" class="logo">
+    <div class="titulo">${nombreTaller}</div>
+  </div>
+  <div style="text-align:right;">
+    <div><strong>Folio:</strong> <span style="color:#2563eb;">${s.folio}</span></div>
+    <div>${new Date(s.fecha_servicio).toLocaleDateString()}</div>
+  </div>
+</div>
+
+    <div class="section box">
+      <strong>Cliente:</strong> ${s.cliente_nombre}<br>
+      <strong>Tel:</strong> ${s.cliente_telefono || 'N/A'}<br>
+      <strong>Correo:</strong> ${s.cliente_correo || 'N/A'}
+    </div>
+
+    <div class="section box">
+      <strong>Vehículo:</strong><br>
+      ${s.marca || ''} ${s.modelo || ''} ${s.anio || ''}<br>
+      VIN: ${s.vin}
+    </div>
+
+    <div class="section box">
+      <strong>Servicio realizado</strong><br><br>
+
+      <strong>Descripción:</strong> ${s.descripcion}<br>
+      <strong>Fecha:</strong> ${new Date(s.fecha_servicio).toLocaleDateString()}<br>
+      <strong>Kilometraje:</strong> ${s.kilometraje} ${s.unidad}<br>
+      <strong>Costo:</strong> $${s.costo}<br>
+      <strong class="${s.en_garantia ? 'garantia' : ''}">
+        Garantía: ${s.garantia_meses} meses
+      </strong>
+    </div>
+
+    <div class="total">
+      Total: $${s.costo}
+    </div>
+
+    <div class="footer">
+      Gracias por su preferencia<br>
+      ${nombreTaller}
+    </div>
+
+    <script>
+      window.onload = function(){
+        window.print();
+      }
+    <\/script>
+
+  </body>
+  </html>
+  `;
+
+  w.document.write(html);
+  w.document.close();
+};
+</script>
+
+</div>
+</body>
+</html>
