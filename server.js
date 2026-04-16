@@ -46,7 +46,7 @@ app.use('/api/recordatorios', recordatoriosRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', apiRoutes);
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT;
 
 app.listen(port, '0.0.0.0', () => {
   console.log('Servidor corriendo en puerto', port);
