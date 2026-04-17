@@ -27,6 +27,11 @@ app.use('/api/auth', authRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// healt check 
+app.get('/', (req, res) => {
+  res.send('Servidor funcionando 🚀');
+});
+
 // rutas
 const indexRoutes = require('./routes/index.routes'); 
 const apiRoutes = require('./routes/api.routes.js');
