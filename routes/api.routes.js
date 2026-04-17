@@ -181,20 +181,20 @@ router.get('/taller/:slug', async (req, res) => {
   try {
     const [rows] = await db.query(
       `SELECT 
-  nombre,
-  telefono,
-  descripcion,
-  servicios,
-  horario,
-  ubicacion,
-  logo,
-  portada,
-  plan,
-  estado,
-  modulos
-FROM talleres
-WHERE slug = ?
-AND LOWER(estado) = 'activo'`,
+        nombre,
+        telefono,
+        descripcion,
+        servicios,
+        horario,
+        ubicacion,
+        logo,
+        portada,
+        plan,
+        estado,
+        modulos
+      FROM talleres
+      WHERE slug = ?
+      LIMIT 1`,
       [slug]
     );
 
