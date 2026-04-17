@@ -194,7 +194,7 @@ router.get('/taller/:slug', async (req, res) => {
   modulos
 FROM talleres
 WHERE slug = ?
-AND estado = 'activo'`,
+AND LOWER(estado) = 'activo'`,
       [slug]
     );
 
