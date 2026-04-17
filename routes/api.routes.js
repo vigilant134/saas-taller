@@ -193,7 +193,7 @@ router.get('/taller/:slug', async (req, res) => {
         estado,
         modulos
       FROM talleres
-      WHERE slug = ?
+      WHERE TRIM(LOWER(slug)) = TRIM(LOWER(?))
       LIMIT 1`,
       [slug]
     );
