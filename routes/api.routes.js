@@ -169,16 +169,22 @@ cliente_id = resultadoCliente.insertId;
   });
 
 } finally {
-  connection.release();
-} 
-});
-
-
-
-router.get('/taller/:slug', async (req, res) => {
+  connection.
+  
+  
+  
+  
+  router.get('/taller/:slug', async (req, res) => {
   const { slug } = req.params;
 
   try {
+    console.log("SLUG RECIBIDO:", slug);
+
+    // 🔥 VER TODOS LOS SLUGS EN LA DB
+    const [all] = await db.query(`SELECT slug FROM talleres`);
+    console.log("SLUGS EN DB:", all);
+
+    // 🔥 BUSCAR CON LIMPIEZA
     const [rows] = await db.query(
       `SELECT 
         nombre,
@@ -198,15 +204,26 @@ router.get('/taller/:slug', async (req, res) => {
       [slug]
     );
 
+    console.log("RESULTADO QUERY:", rows);
+
     if (!rows.length) {
-      return res.status(404).json({ ok:false });
+      return res.json({
+        ok: false,
+        debug: {
+          recibido: slug,
+          disponibles: all
+        }
+      });
     }
 
-    res.json({ ok:true, taller: rows[0] });
+    res.json({
+      ok: true,
+      taller: rows[0]
+    });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok:false });
+    console.error("ERROR EN ENDPOINT:", err);
+    res.status(500).json({ ok: false });
   }
 });
 
