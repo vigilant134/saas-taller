@@ -102,16 +102,19 @@ router.get('/taller/:slug', async (req, res) => {
   const { slug } = req.params;
 
   try {
+    console.log("SLUG:", slug);
+
     const [rows] = await db.query(
-      `SELECT * FROM talleres WHERE slug = ? LIMIT 1`,
-      [slug]
+      `SELECT * FROM talleres`,
     );
 
-    if (!rows.length) {
-      return res.json({ ok: false });
-    }
+    console.log("TODOS LOS TALLERES:", rows);
 
-    res.json({ ok: true, taller: rows[0] });
+    return res.json({
+      ok: true,
+      total: rows.length,
+      data: rows
+    });
 
   } catch (err) {
     console.error(err);
