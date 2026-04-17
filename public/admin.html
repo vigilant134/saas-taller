@@ -109,6 +109,20 @@ Módulos:<br>
 
 <hr>
 
+<script>
+// 🔒 PROTECCIÓN ADMIN
+(async () => {
+  const res = await fetch('/api/auth/me', {
+    credentials: 'include'
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    window.location.href = '/';
+  }
+})();
+</script>
 
 <script>
 async function cargar(){
