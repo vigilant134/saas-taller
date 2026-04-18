@@ -27,9 +27,8 @@ app.use('/api/auth', authRoutes);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// healt check 
 app.get('/', (req, res) => {
-  res.send('Servidor funcionando 🚀');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // rutas
@@ -42,7 +41,8 @@ const clientesRoutes = require('./routes/clientes.routes.js');
 const recordatoriosRoutes = require('./routes/recordatorios.routes.js');
 const adminRoutes = require('./routes/admin.routes'); 
 
-app.use('/', indexRoutes);
+// rutas
+app.use('/api/auth', authRoutes);
 app.use('/api/citas', citasRoutes);
 app.use('/api/vehiculos', vehiculosRoutes);
 app.use('/api/servicios', serviciosRoutes);
@@ -51,7 +51,12 @@ app.use('/api/recordatorios', recordatoriosRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', apiRoutes);
 
-const port = process.env.PORT;
+//  AL FINAL
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+const port = process.env.PORT || 4000;
 
 app.listen(port, '0.0.0.0', () => {
   console.log('Servidor corriendo en puerto', port);
