@@ -42,6 +42,7 @@ const recordatoriosRoutes = require('./routes/recordatorios.routes.js');
 const adminRoutes = require('./routes/admin.routes'); 
 
 // rutas
+// APIs primero
 app.use('/api/auth', authRoutes);
 app.use('/api/citas', citasRoutes);
 app.use('/api/vehiculos', vehiculosRoutes);
@@ -51,8 +52,11 @@ app.use('/api/recordatorios', recordatoriosRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', apiRoutes);
 
-//  AL FINAL
-app.get('/', (req, res) => {
+// ESTÁTICOS
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 👉 AL FINAL DE TODO
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
