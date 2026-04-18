@@ -180,33 +180,19 @@ router.get('/taller/:slug', async (req, res) => {
 
   try {
     const [rows] = await db.query(
-      `SELECT 
-  nombre,
-  telefono,
-  descripcion,
-  servicios,
-  horario,
-  ubicacion,
-  logo,
-  portada,
-  plan,
-  estado,
-  modulos
-FROM talleres
-WHERE slug = ?
-AND LOWER(estado) = 'activo'`,
+      `SELECT * FROM talleres WHERE slug = ? LIMIT 1`,
       [slug]
     );
 
     if (!rows.length) {
-      return res.status(404).json({ ok:false });
+      return res.json({ ok: false });
     }
 
-    res.json({ ok:true, taller: rows[0] });
+    res.json({ ok: true, taller: rows[0] });
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ ok:false });
+    res.status(500).json({ ok: false });
   }
 });
 
