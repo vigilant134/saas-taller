@@ -54,9 +54,9 @@ app.use('/api', apiRoutes);
 
 // ESTÁTICOS
 app.use(express.static(path.join(__dirname, 'public')));
-
-// 👉 AL FINAL DE TODO
-app.get('*', (req, res) => {
+//redeploy
+//  AL FINAL DE TODO
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
