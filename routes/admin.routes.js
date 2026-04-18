@@ -199,4 +199,36 @@ router.post('/talleres/:id/upload', upload.single('imagen'), async (req, res) =>
   }
 });
 
+
+router.get('/usuarios', async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT 
+        u.id,
+        u.nombre,
+        u.email,
+        u.rol,
+        u.estado,
+        t.nombre AS taller,
+        t.slug
+      FROM usuarios u
+      JOIN talleres t ON u.taller_id = t.id
+      ORDER BY u.id DESC
+    `);
+
+    res.json({
+      ok: true,
+      usuarios: rows
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ ok: false });
+  }
+});
+
+
+
+
+
 module.exports = router;
