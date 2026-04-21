@@ -4,7 +4,19 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const session = require('express-session');
+
 const authRoutes = require('./routes/auth.routes');
+const authAdmin = require('./middlewares/authAdmin');
+
+// rutas
+const indexRoutes = require('./routes/index.routes'); 
+const apiRoutes = require('./routes/api.routes.js');
+const citasRoutes = require('./routes/citas.routes.js');
+const vehiculosRoutes = require('./routes/vehiculos.routes.js');
+const serviciosRoutes = require('./routes/servicios.routes.js');
+const clientesRoutes = require('./routes/clientes.routes.js');
+const recordatoriosRoutes = require('./routes/recordatorios.routes.js');
+const adminRoutes = require('./routes/admin.routes'); 
 
 app.use(express.json());
 app.set('trust proxy', 1);
@@ -21,28 +33,18 @@ app.use(session({
   }
 }));
 
-app.use('/api/auth', authRoutes);
-
-// estáticos
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// 🔒 BLOQUEAR acceso directo
+app.get('/admin.html', (req, res) => {
+  return res.redirect('/login.html');
 });
 
-// rutas
-const indexRoutes = require('./routes/index.routes'); 
-const apiRoutes = require('./routes/api.routes.js');
-const citasRoutes = require('./routes/citas.routes.js');
-const vehiculosRoutes = require('./routes/vehiculos.routes.js');
-const serviciosRoutes = require('./routes/servicios.routes.js');
-const clientesRoutes = require('./routes/clientes.routes.js');
-const recordatoriosRoutes = require('./routes/recordatorios.routes.js');
-const adminRoutes = require('./routes/admin.routes'); 
+// 🔐 RUTA PROTEGIDA
+app.get('/admin', authAdmin, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
-// rutas
-// APIs primero
+
+// 🔌 APIs (SOLO UNA VEZ CADA UNA)
 app.use('/api/auth', authRoutes);
 app.use('/api/citas', citasRoutes);
 app.use('/api/vehiculos', vehiculosRoutes);
@@ -52,13 +54,23 @@ app.use('/api/recordatorios', recordatoriosRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', apiRoutes);
 
-// ESTÁTICOS
+
+// 📁 ARCHIVOS ESTÁTICOS (UNA SOLA VEZ Y DESPUÉS DE TODO)
 app.use(express.static(path.join(__dirname, 'public')));
-//redeploy
-//  AL FINAL DE TODO
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+// 🏠 HOME
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+
+// 🔁 SPA fallback (al final)
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 
 const port = process.env.PORT || 4000;
 
