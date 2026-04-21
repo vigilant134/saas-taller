@@ -138,8 +138,8 @@ router.patch('/:id/confirmar',
    // whatsapp notification
 
 const [cita] = await db.query(
-  'SELECT nombre, telefono FROM citas WHERE id = ?',
-  [id]
+  'SELECT nombre, telefono FROM citas WHERE id = ? AND taller_id = ?',
+  [id, taller_id]
 );
 if (!cita.length) {
   return res.status(404).json({ ok:false, message:'Cita no encontrada' });
@@ -185,10 +185,10 @@ router.patch('/:id/reprogramar',
       });
     }
  // DATOS DE LA CITA
-    const [cita] = await db.query(
-      'SELECT nombre, telefono FROM citas WHERE id = ?',
-      [id]
-    );
+   const [cita] = await db.query(
+  'SELECT nombre, telefono FROM citas WHERE id = ? AND taller_id = ?',
+  [id, taller_id]
+);
 
     const mensaje = `Hola ${cita[0].nombre}, por favor contacta al taller Reparaciones el Parra al 6644838112 para reagendar tu cita.`;
 
