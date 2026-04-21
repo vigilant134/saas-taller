@@ -141,7 +141,7 @@ router.post('/talleres', async (req, res) => {
     // 3️ crear usuario
     await db.query(
       `INSERT INTO usuarios (taller_id, nombre, email, password, rol)
-       VALUES (?, ?, ?, ?, 'admin')`,
+       VALUES (?, ?, ?, ?, 'taller')`,
       [
         taller_id,
         nombre,
