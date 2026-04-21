@@ -110,16 +110,28 @@ Módulos:<br>
 <hr>
 
 <script>
-// 🔒 PROTECCIÓN ADMIN
+//  PROTECCIÓN ADMIN
 (async () => {
-  const res = await fetch('/api/auth/me', {
-    credentials: 'include'
-  });
+  try {
+    const res = await fetch('/api/auth/me', {
+      credentials: 'include'
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (!data.ok) {
-    window.location.href = '/';
+    //  no logueado
+    if (!data.ok) {
+      return window.location.href = '/login.html';
+    }
+
+    //  no es admin
+    if (data.user.rol !== 'admin') {
+      alert('No tienes acceso');
+      return window.location.href = '/';
+    }
+
+  } catch (err) {
+    window.location.href = '/login.html';
   }
 })();
 </script>
