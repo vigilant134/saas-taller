@@ -296,7 +296,7 @@ router.get('/:id', async (req, res) => {
         c.id AS cliente_id,
         c.nombre AS cliente_nombre,
         c.telefono AS cliente_telefono,
-        c.correo AS cliente_correo,
+        c.email AS cliente_correo,
         CASE
           WHEN s.garantia_meses > 0
           AND DATE_ADD(s.fecha_servicio, INTERVAL s.garantia_meses MONTH) >= CURDATE()
