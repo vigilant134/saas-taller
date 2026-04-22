@@ -30,6 +30,9 @@ router.post('/registro-nuevo',
   try {
     await connection.beginTransaction();
 
+    // ==========================
+    // CLIENTE
+    // ==========================
     const [clientes] = await connection.query(
       `SELECT id FROM clientes WHERE telefono = ? AND taller_id = ?`,
       [cliente.telefono, taller_id]
@@ -48,6 +51,9 @@ router.post('/registro-nuevo',
       cliente_id = resultadoCliente.insertId;
     }
 
+    // ==========================
+    // VEHÍCULO
+    // ==========================
     const [vehiculosExistentes] = await connection.query(
       `SELECT id FROM vehiculos WHERE vin = ? AND taller_id = ?`,
       [vinClean, taller_id]
@@ -66,16 +72,44 @@ router.post('/registro-nuevo',
       vehiculo_id = resultadoVehiculo.insertId;
     }
 
+    // ==========================
+    //  GENERAR FOLIO
+    // ==========================
+    const [count] = await connection.query(
+      `SELECT COUNT(*) AS total FROM servicios WHERE taller_id = ?`,
+      [taller_id]
+    );
+
+    const siguiente = count[0].total + 1;
+    const folio = `T${taller_id}-${String(siguiente).padStart(6, '0')}`;
+
+    // ==========================
+    //  SERVICIO COMPLETO
+    // ==========================
     const [resultadoServicio] = await connection.query(
       `INSERT INTO servicios
-       (taller_id, vehiculo_id, descripcion, costo, fecha_servicio)
-       VALUES (?, ?, ?, ?, ?)`,
+       (
+         taller_id,
+         vehiculo_id,
+         descripcion,
+         costo,
+         fecha_servicio,
+         kilometraje,
+         unidad,
+         garantia_meses,
+         folio
+       )
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         taller_id,
         vehiculo_id,
         servicio.descripcion,
         Number(servicio.costo) || 0,
-        servicio.fecha_servicio
+        servicio.fecha_servicio,
+        Number(servicio.kilometraje) || 0,
+        servicio.unidad || 'km',
+        Number(servicio.garantia_meses) || 0,
+        folio
       ]
     );
 
@@ -92,12 +126,12 @@ router.post('/registro-nuevo',
     res.status(500).json({ ok: false });
 
   } finally {
-    connection.release(); // 🔥 ESTO FALTABA
+    connection.release();
   }
 });
 
 
-// 🔥 ENDPOINT TALLER (YA CORRECTO)
+//  ENDPOINT TALLER (YA CORRECTO)
 router.get('/taller/:slug', async (req, res) => {
   const { slug } = req.params;
 

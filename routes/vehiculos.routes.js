@@ -38,28 +38,33 @@ router.get('/:vehiculoId/servicios', async (req, res) => {
 
   try {
     const [servicios] = await db.query(
-      `
-      SELECT
-        id,
-        descripcion,
-        costo,
-        fecha_servicio,
-        kilometraje,
-        unidad,
-        garantia_meses,
-        CASE
-          WHEN garantia_meses > 0
-           AND DATE_ADD(fecha_servicio, INTERVAL garantia_meses MONTH) >= CURDATE()
-          THEN 1
-          ELSE 0
-        END AS en_garantia
-      FROM servicios
-      WHERE vehiculo_id = ?
-      AND taller_id = ?
-      ORDER BY fecha_servicio DESC
-      `,
-      [vehiculoId, taller_id]
-    );
+  `
+  SELECT
+    s.id,
+    s.descripcion,
+    s.costo,
+    s.fecha_servicio,
+    s.kilometraje,
+    s.unidad,
+    s.garantia_meses,
+    c.nombre AS cliente_nombre,
+    c.telefono AS cliente_telefono,
+    c.correo AS cliente_correo,
+    CASE
+      WHEN s.garantia_meses > 0
+       AND DATE_ADD(s.fecha_servicio, INTERVAL s.garantia_meses MONTH) >= CURDATE()
+      THEN 1
+      ELSE 0
+    END AS en_garantia
+  FROM servicios s
+  JOIN vehiculos v ON s.vehiculo_id = v.id
+  JOIN clientes c ON v.cliente_id = c.id
+  WHERE s.vehiculo_id = ?
+  AND s.taller_id = ?
+  ORDER BY s.fecha_servicio DESC
+  `,
+  [vehiculoId, taller_id]
+);
 
     res.json(servicios);
 

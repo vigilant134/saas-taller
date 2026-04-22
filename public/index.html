@@ -879,13 +879,11 @@ async function cargarFotosServicio(servicioId) {
   if (!Array.isArray(fotos)) return;
   if (!fotos.length) return;
 
-  const BASE_URL = "http://localhost:4000";
-
   fotos.forEach(f => {
     const box = document.createElement('div');
     box.className = 'foto-box';
 
-    const imgSrc = `${BASE_URL}/uploads/servicios/${servicioId}/${f.archivo}`;
+    const imgSrc = `/uploads/servicios/${servicioId}/${f.archivo}`;
 
     box.innerHTML = `<img src="${imgSrc}" style="cursor:pointer">`;
 
@@ -1048,6 +1046,7 @@ document.getElementById('guardarRegistro').onclick = async () => {
 // ==============================
 
 const guardarRecordatorioBtn = document.getElementById('guardarRecordatorio');
+const listaRecordatorios = document.getElementById('listaRecordatorios');
 
 guardarRecordatorioBtn.onclick = async () => {
   const payload = {
