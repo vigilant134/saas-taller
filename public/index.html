@@ -1340,26 +1340,42 @@ window.imprimirServicio = async function(servicioId){
   w.document.close();
 };
 
-document.getElementById('btnCambiarPass').onclick = async () => {
-  const nueva = document.getElementById('nuevaPass').value;
+document.addEventListener('DOMContentLoaded', () => {
 
-  const data = await apiFetch('/api/auth/cambiar-password', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ nueva })
-  });
+  const btn = document.getElementById('btnCambiarPass');
 
-  if(!data.ok){
-    alert(data.message || 'Error');
+  if(!btn){
+    console.log('NO EXISTE BOTÓN');
     return;
   }
 
-  alert('Contraseña actualizada');
+  btn.onclick = async () => {
 
-  document.getElementById('cambiarPassBox').classList.add('hidden');
+    console.log('CLICK OK');
 
-  location.reload();
-};
+    const nueva = document.getElementById('nuevaPass').value;
+
+    const data = await apiFetch('/api/auth/cambiar-password', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ nueva })
+    });
+
+    console.log('RESPUESTA:', data);
+
+    if(!data.ok){
+      alert(data.message || 'Error');
+      return;
+    }
+
+    alert('Contraseña actualizada');
+
+    document.getElementById('cambiarPassBox').classList.add('hidden');
+
+    location.reload();
+  };
+
+});
 
 
 
