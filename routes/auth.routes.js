@@ -4,11 +4,6 @@ const db = require('../db');
 const bcrypt = require('bcrypt');   //  FALTABA ESTO
 
 
-// 🔥 TEMPORAL (para generar hash)
-(async () => {
-  const hash = await bcrypt.hash('123456', 10);
-  console.log('HASH 123456:', hash);
-})();
 
 // LOGIN
 router.post('/login', async (req, res) => {
