@@ -49,8 +49,7 @@ req.session.user = {
   user_id: user.id,
   taller_id: taller.id,
   plan: taller.plan,
-  rol: user.rol,
-  email: user.email // 🔥 ESTE ES EL QUE FALTA
+  rol: user.rol
 };
 
 // 🔒 respuesta única
@@ -95,27 +94,29 @@ router.post('/cambiar-password', async (req, res) => {
     const { nueva } = req.body;
 
     if (!req.session || !req.session.user) {
-      return res.status(401).json({
-        ok:false,
-        message:'No autenticado'
-      });
+      return res.json({ ok:false, message:'No autenticado' });
     }
 
     if (!nueva || nueva.length < 6) {
-      return res.json({
-        ok:false,
-        message:'Mínimo 6 caracteres'
-      });
+      return res.json({ ok:false, message:'Mínimo 6 caracteres' });
     }
 
-    const email = req.session.user.email;
+    const user_id = req.session.user.user_id;
+
+    console.log('USER ID SESSION:', user_id);
 
     const hash = await bcrypt.hash(nueva, 10);
 
-    await db.query(
-      'UPDATE usuarios SET password = ?, cambiar_password = 0 WHERE email = ?',
-      [hash, email]
+    const [result] = await db.query(
+      'UPDATE usuarios SET password = ?, cambiar_password = 0 WHERE id = ?',
+      [hash, user_id]
     );
+
+    console.log('UPDATE RESULT:', result);
+
+    if(result.affectedRows === 0){
+      return res.json({ ok:false, message:'No se actualizó usuario' });
+    }
 
     res.json({
       ok:true,
@@ -124,7 +125,7 @@ router.post('/cambiar-password', async (req, res) => {
 
   } catch (err) {
     console.error('ERROR CAMBIAR PASSWORD:', err);
-    res.status(500).json({ ok:false });
+    res.json({ ok:false });
   }
 });
 
