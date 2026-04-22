@@ -43,12 +43,16 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ message: 'Taller bloqueado' });
     }
 
-    req.session.user = {
-  user_id: user.id,
-  taller_id: taller.id,
-  plan: taller.plan,
-  rol: user.rol
-};
+  res.json({
+  ok: true,
+  message: 'Login correcto',
+  cambiarPassword: user.cambiar_password === 1,
+  taller: {
+    id: taller.id,
+    nombre: taller.nombre,
+    plan: taller.plan
+  }
+});
 
    res.json({
   ok: true,
@@ -82,5 +86,48 @@ router.post('/logout', (req, res) => {
     res.json({ ok: true });
   });
 });
+
+
+
+router.post('/cambiar-password', async (req, res) => {
+  try {
+    const { nueva } = req.body;
+
+    if (!req.session || !req.session.user) {
+      return res.status(401).json({
+        ok:false,
+        message:'No autenticado'
+      });
+    }
+
+    if (!nueva || nueva.length < 6) {
+      return res.json({
+        ok:false,
+        message:'Mínimo 6 caracteres'
+      });
+    }
+
+    const user_id = req.session.user.user_id;
+
+    const hash = await bcrypt.hash(nueva, 10);
+
+    await db.query(
+      'UPDATE usuarios SET password = ?, cambiar_password = 0 WHERE id = ?',
+      [hash, user_id]
+    );
+
+    res.json({
+      ok:true,
+      message:'Contraseña actualizada'
+    });
+
+  } catch (err) {
+    console.error('ERROR CAMBIAR PASSWORD:', err);
+    res.status(500).json({ ok:false });
+  }
+});
+
+
+
 
 module.exports = router;

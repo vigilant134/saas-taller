@@ -609,7 +609,10 @@ loginBtn.onclick = async () => {
     alert(data.message || 'Error al iniciar sesión');
     return;
   }
-
+if(data.cambiarPassword){
+  alert('Debes cambiar tu contraseña antes de continuar');
+  return;
+}
   //  ESPERAR A QUE LA SESIÓN EXISTA REALMENTE
   let intentos = 0;
   let sesionOK = false;
@@ -1155,6 +1158,7 @@ async function atenderCita(id){
     regClienteTelefono.value = data.data.telefono;
     regClienteCorreo.value = data.data.correo || '';
   }
+  
 }
 
 async function confirmarCita(id){
