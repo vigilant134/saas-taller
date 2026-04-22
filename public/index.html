@@ -647,8 +647,9 @@ logoutBtn.onclick = async () => {
   panel.classList.add('hidden');
   publicSection.classList.remove('hidden');
   document.body.classList.remove('modo-panel');
-};
 
+  document.getElementById('citas').innerHTML = ''; //  limpiar
+};
 
 // ==========================
 // NAVEGACIÓN PANEL
@@ -1023,18 +1024,6 @@ document.getElementById('guardarRegistro').onclick = async () => {
 </script>
 
 <script>
-(async ()=>{
-  const data = await apiFetch('/api/auth/me');
-
-  if(data.ok){
-    loginSection.classList.add('hidden');
-    publicSection.classList.add('hidden');
-    panel.classList.remove('hidden');
-    document.body.classList.add('modo-panel');
-
-    await cargarTaller(); //  ESTA LÍNEA FALTABA
-  }
-})();
 
 // ==============================
 // RECORDATORIOS
