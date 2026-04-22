@@ -147,7 +147,7 @@ router.post('/talleres', async (req, res) => {
       [
         taller_id,
         nombre,
-        slug + '@app.com',
+        slug + '-' + Date.now() + '@app.com',
         passwordHash
       ]
     );
