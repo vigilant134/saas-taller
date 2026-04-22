@@ -28,8 +28,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax'
+    secure: false,   // 🔥 FORZAR
+    sameSite: 'lax'  // 🔥 FORZAR
   }
 }));
 

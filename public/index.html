@@ -600,15 +600,18 @@ loginBtn.onclick = async () => {
   const password = document.querySelector('#loginPassword').value;
 
   const data = await apiFetch('/api/auth/login', {
+    
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ email, password })
   });
-
+console.log('LOGIN RESPONSE:', data);
   if(!data.ok){
     alert(data.message || 'Error al iniciar sesión');
     return;
   }
+  
+
 if(data.cambiarPassword){
   alert('Debes cambiar tu contraseña antes de continuar');
   return;
@@ -619,7 +622,7 @@ if(data.cambiarPassword){
 
   while(intentos < 5 && !sesionOK){
     const me = await apiFetch('/api/auth/me');
-
+console.log('ME RESPONSE:', me);
     if(me.ok){
       sesionOK = true;
       break;
