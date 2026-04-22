@@ -86,6 +86,7 @@ router.post('/registro-nuevo',
     // ==========================
     //  SERVICIO COMPLETO
     // ==========================
+    console.log('DESCRIPCION:', servicio.descripcion);
     const [resultadoServicio] = await connection.query(
       `INSERT INTO servicios
        (
