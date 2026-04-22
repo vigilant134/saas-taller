@@ -3,7 +3,7 @@ const router = Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');   //  FALTABA ESTO
 
-
+bcrypt.hash('123456', 10).then(hash => console.log(hash));
 
 // LOGIN
 router.post('/login', async (req, res) => {

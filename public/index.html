@@ -613,6 +613,15 @@ loginBtn.onclick = async () => {
   
 
 if(data.cambiarPassword){
+
+  //  primero validar sesión
+  const me = await apiFetch('/api/auth/me');
+
+  if(!me.ok){
+    alert('Error de sesión, intenta de nuevo');
+    return;
+  }
+
   document.getElementById('cambiarPassBox').classList.remove('hidden');
   return;
 }
