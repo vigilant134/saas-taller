@@ -1351,7 +1351,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btn.onclick = async () => {
 
-    console.log('CLICK OK');
+    
 
     const nueva = document.getElementById('nuevaPass').value;
 
@@ -1361,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', () => {
       body: JSON.stringify({ nueva })
     });
 
-    console.log('RESPUESTA:', data);
+    
 
     if(!data.ok){
       alert(data.message || 'Error');
