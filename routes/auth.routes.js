@@ -45,20 +45,19 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ message: 'Taller bloqueado' });
     }
 
-  res.json({
+  // 🔥 guardar sesión
+req.session.user = {
+  user_id: user.id,
+  taller_id: taller.id,
+  plan: taller.plan,
+  rol: user.rol
+};
+
+// 🔒 respuesta única
+return res.json({
   ok: true,
   message: 'Login correcto',
   cambiarPassword: user.cambiar_password === 1,
-  taller: {
-    id: taller.id,
-    nombre: taller.nombre,
-    plan: taller.plan
-  }
-});
-
-   res.json({
-  ok: true,
-  message: 'Login correcto',
   taller: {
     id: taller.id,
     nombre: taller.nombre,
