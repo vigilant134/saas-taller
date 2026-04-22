@@ -49,7 +49,8 @@ req.session.user = {
   user_id: user.id,
   taller_id: taller.id,
   plan: taller.plan,
-  rol: user.rol
+  rol: user.rol,
+  email: user.email // 🔥 ESTE ES EL QUE FALTA
 };
 
 // 🔒 respuesta única
@@ -107,13 +108,13 @@ router.post('/cambiar-password', async (req, res) => {
       });
     }
 
-    const user_id = req.session.user.user_id;
+    const email = req.session.user.email;
 
     const hash = await bcrypt.hash(nueva, 10);
 
     await db.query(
-      'UPDATE usuarios SET password = ?, cambiar_password = 0 WHERE id = ?',
-      [hash, user_id]
+      'UPDATE usuarios SET password = ?, cambiar_password = 0 WHERE email = ?',
+      [hash, email]
     );
 
     res.json({
