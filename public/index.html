@@ -834,7 +834,7 @@ async function cargarServicios(vehiculoId) {
   const resp = await apiFetch(`/api/vehiculos/${vehiculoId}/servicios`);
   const servicios = resp.data;
 
-  if (!servicios.length) {
+  if (!servicios || !servicios.length) {
     listaServicios.innerHTML = '<p>No hay servicios registrados.</p>';
     serviciosResultados.classList.remove('hidden');
     return;
@@ -849,21 +849,31 @@ async function cargarServicios(vehiculoId) {
     }
 
     div.innerHTML = `
-  <strong>${s.descripcion}</strong><br>
-  Fecha: ${formatearFecha(s.fecha_servicio)}<br>
-  Kilometraje: ${s.kilometraje} ${s.unidad}<br>
-  Costo: $${s.costo}<br>
-  Garantía: ${s.garantia_meses} meses
-  ${s.en_garantia ? '<div class="servicio-label">GARANTÍA VIGENTE</div>' : ''}
+      <strong>${s.descripcion}</strong><br>
 
-  <button onclick="imprimirServicio(${s.id})" style="margin-top:10px;">
-    🧾 Imprimir nota
-  </button>
+      👤 Cliente: ${s.cliente_nombre || 'N/A'}<br>
+      📧 Correo: ${s.cliente_correo || 'N/A'}<br>
 
-  <div class="fotos-wrap" id="fotos-${s.id}"></div>
-`;
+      🚗 Vehículo: ${s.marca || ''} ${s.modelo || ''} ${s.anio || ''}<br>
+      VIN: ${s.vin || 'N/A'}<br>
+
+      📅 Fecha: ${formatearFecha(s.fecha_servicio)}<br>
+      🔧 Kilometraje: ${s.kilometraje} ${s.unidad}<br>
+      💲 Costo: $${s.costo}<br>
+      🛡️ Garantía: ${s.garantia_meses} meses
+
+      ${s.en_garantia ? '<div class="servicio-label">GARANTÍA VIGENTE</div>' : ''}
+
+      <button onclick="imprimirServicio(${s.id})" style="margin-top:10px;">
+        🧾 Imprimir nota
+      </button>
+
+      <div class="fotos-wrap" id="fotos-${s.id}"></div>
+    `;
 
     listaServicios.appendChild(div);
+
+    //  cargar fotos
     cargarFotosServicio(s.id);
   });
 

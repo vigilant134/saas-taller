@@ -65,9 +65,16 @@ router.post('/registro-nuevo',
       vehiculo_id = vehiculosExistentes[0].id;
     } else {
       const [resultadoVehiculo] = await connection.query(
-        `INSERT INTO vehiculos (taller_id, cliente_id, vin)
-         VALUES (?, ?, ?)`,
-        [taller_id, cliente_id, vinClean]
+        `INSERT INTO vehiculos (taller_id, cliente_id, vin, marca, modelo, anio)
+VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+  taller_id,
+  cliente_id,
+  vinClean,
+  vehiculo.marca || '',
+  vehiculo.modelo || '',
+  vehiculo.anio || null
+]
       );
       vehiculo_id = resultadoVehiculo.insertId;
     }
