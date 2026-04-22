@@ -66,7 +66,10 @@ router.get('/:vehiculoId/servicios', async (req, res) => {
   [vehiculoId, taller_id]
 );
 
-    res.json(servicios);
+    res.json({
+  ok: true,
+  data: servicios
+});
 
   } catch (error) {
     console.error(error);

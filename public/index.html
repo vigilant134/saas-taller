@@ -831,7 +831,8 @@ async function cargarServicios(vehiculoId) {
   listaServicios.innerHTML = '';
   serviciosResultados.classList.add('hidden');
 
-  const servicios = await apiFetch(`/api/vehiculos/${vehiculoId}/servicios`);
+  const resp = await apiFetch(`/api/vehiculos/${vehiculoId}/servicios`);
+  const servicios = resp.data;
 
   if (!servicios.length) {
     listaServicios.innerHTML = '<p>No hay servicios registrados.</p>';
