@@ -65,6 +65,7 @@ router.post('/publica', async (req, res) => {
       hora_solicitada,
       mensaje
     } = req.body;
+    console.log('SLUG BACK:', slug);
 
     if (!slug || !nombre || !telefono || !fecha_solicitada || !hora_solicitada) {
       return res.status(400).json({ ok: false, message: 'Faltan datos' });
