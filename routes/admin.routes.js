@@ -4,6 +4,7 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const path = require('path');
+const crypto = require('crypto');
 
 // IMPORTAR MIDDLEWARE
 const authAdmin = require('../middlewares/authAdmin');
@@ -107,8 +108,9 @@ router.post('/talleres', async (req, res) => {
 
   try {
 
-    //  password temporal
-    const passwordPlano = '123456';
+    //  password 
+    
+    const passwordPlano = crypto.randomBytes(4).toString('hex');
     const passwordHash = await bcrypt.hash(passwordPlano, 10);
 
     // 1️ crear taller
