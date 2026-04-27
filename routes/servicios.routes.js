@@ -103,40 +103,71 @@ router.post('/', async (req, res) => {
 POST subir fotos a servicio
 ========================================
 */
-router.post('/:id/fotos', uploadFotosServicio.array('fotos', 10), async (req, res) => {
+router.post('/:id/fotos', (req, res) => {
 
-  const taller_id = req.user.taller_id;
-  const servicioId = req.params.id;
+  uploadFotosServicio.array('fotos', 10)(req, res, async (err) => {
 
-  // VALIDACIÓN DE SEGURIDAD
-  const [servicios] = await db.query(
-    'SELECT id FROM servicios WHERE id = ? AND taller_id = ?',
-    [servicioId, taller_id]
-  );
-
-  if (servicios.length === 0) {
-    return res.status(403).json({ ok:false, message:'No autorizado' });
-  }
-
-  //  lógica sigue igual
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ ok: false, message: 'No se subieron archivos' });
-  }
-
-  try {
-    for (const file of req.files) {
-      await db.query(
-  'INSERT INTO fotos_servicio (servicio_id, archivo, taller_id) VALUES (?, ?, ?)',
-  [servicioId, file.path, taller_id]
-);
+    //  ERROR DE MULTER / CLOUDINARY
+    if (err) {
+      console.error("ERROR MULTER:", err);
+      return res.status(500).json({
+        ok: false,
+        message: 'Error subiendo imagen'
+      });
     }
 
-    res.json({ ok: true, message: 'Fotos guardadas' });
+    const taller_id = req.user.taller_id;
+    const servicioId = req.params.id;
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok: false, message: 'Error al guardar fotos' });
-  }
+    try {
+      //  VALIDAR QUE EL SERVICIO PERTENECE AL TALLER
+      const [servicios] = await db.query(
+        'SELECT id FROM servicios WHERE id = ? AND taller_id = ?',
+        [servicioId, taller_id]
+      );
+
+      if (servicios.length === 0) {
+        return res.status(403).json({
+          ok: false,
+          message: 'No autorizado'
+        });
+      }
+
+      //  VALIDAR QUE HAYA ARCHIVOS
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({
+          ok: false,
+          message: 'No se subieron archivos'
+        });
+      }
+
+      //  GUARDAR CADA IMAGEN
+      for (const file of req.files) {
+        console.log("FILE CLOUDINARY:", file.path);
+
+        await db.query(
+          'INSERT INTO fotos_servicio (servicio_id, archivo, taller_id) VALUES (?, ?, ?)',
+          [servicioId, file.path, taller_id]
+        );
+      }
+
+      //  RESPUESTA OK
+      res.json({
+        ok: true,
+        message: 'Fotos guardadas'
+      });
+
+    } catch (error) {
+      console.error("ERROR BACKEND:", error);
+
+      res.status(500).json({
+        ok: false,
+        message: 'Error al guardar fotos'
+      });
+    }
+
+  });
+
 });
 /*
 ========================================
