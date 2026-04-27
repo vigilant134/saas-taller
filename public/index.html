@@ -359,7 +359,15 @@ async function apiFetch(url, options = {}) {
   }
 
   const res = await fetch(url, config);
-  const data = await res.json();
+  let data;
+const text = await res.text();
+
+try {
+  data = JSON.parse(text);
+} catch (e) {
+  console.error("NO ES JSON:", text);
+  throw new Error("Respuesta inválida del servidor");
+}
 
   //  mantener tu lógica de taller inactivo
   if (res.status === 403 && data.message?.includes('Taller inactivo')) {
