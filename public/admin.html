@@ -364,7 +364,7 @@ async function subirImagen(tipo, archivo){
   const fd = new FormData();
   fd.append('imagen', archivo);
 
-  await fetch('/api/taller/imagen/' + tipo, {
+  await fetch('/api/admin/talleres/' + tallerActual.id + '/imagen/' + tipo, {
     method: 'POST',
     body: fd,
     credentials: 'include'

@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 const multer = require('multer');
 const path = require('path');
 const crypto = require('crypto');
+const uploadCloud = require('../middlewares/uploadFotosServicio');
+
 
 // IMPORTAR MIDDLEWARE
 const authAdmin = require('../middlewares/authAdmin');
@@ -172,33 +174,46 @@ router.post('/talleres', async (req, res) => {
   }
 });
 
-router.post('/talleres/:id/upload', upload.single('imagen'), async (req, res) => {
-  const { id } = req.params;
-  const { tipo } = req.body;
+router.post('/talleres/:id/upload', (req, res) => {
 
-  try {
+  uploadCloud.single('imagen')(req, res, async (err) => {
 
-    //  VALIDACIÓN
-    if (!req.file) {
-      return res.status(400).json({
-        ok:false,
-        message:'No se envió archivo'
-      });
+    // 🔥 FALTA ESTO (MUY IMPORTANTE)
+    if (err) {
+      console.error("ERROR CLOUDINARY:", err);
+      return res.status(500).json({ ok:false });
     }
 
-    const campo = tipo === 'logo' ? 'logo' : 'portada';
+    const { id } = req.params;
+    const { tipo } = req.body;
 
-    await db.query(
-      `UPDATE talleres SET ${campo} = ? WHERE id = ?`,
-      [req.file.filename, id]
-    );
+    try {
 
-    res.json({ ok:true });
+      if (!req.file) {
+        return res.status(400).json({
+          ok:false,
+          message:'No se envió archivo'
+        });
+      }
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ ok:false });
-  }
+      const campo = tipo === 'logo' ? 'logo' : 'portada';
+
+      await db.query(
+        `UPDATE talleres SET ${campo} = ? WHERE id = ?`,
+        [req.file.path, id]
+      );
+
+      console.log("IMG:", req.file.path);
+
+      res.json({ ok:true });
+
+    } catch (err) {
+      console.error("ERROR DB:", err);
+      res.status(500).json({ ok:false });
+    }
+
+  });
+
 });
 
 
