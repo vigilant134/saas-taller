@@ -1016,7 +1016,7 @@ document.getElementById('guardarRegistro').onclick = async () => {
   // =====================
   // SUBIR FOTOS (SI HAY)
   // =====================
-  if(fotosRegistro.length){
+  if(fotosRegistro.length && data.servicio_id){
     const fd = new FormData();
     fotosRegistro.forEach(f => fd.append('fotos', f));
 
