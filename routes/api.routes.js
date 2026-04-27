@@ -19,9 +19,15 @@ router.post('/registro-nuevo',
   const { cliente, vehiculo, servicio } = req.body;
   const taller_id = req.user.taller_id;
 
-  if (!cliente || !vehiculo || !servicio) {
-    return res.status(400).json({ ok: false, message: 'Faltan bloques' });
-  }
+  if (
+  !cliente ||
+  !vehiculo ||
+  !servicio ||
+  !servicio.descripcion ||
+  !vehiculo.vin
+) {
+  return res.status(400).json({ ok: false, message: 'Datos incompletos' });
+}
 
   const vinClean = vehiculo.vin.trim().toUpperCase();
 

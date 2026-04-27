@@ -396,32 +396,12 @@ async function cargarTaller() {
 console.log('LOGO RAW:', t.logo);
 console.log('PORTADA RAW:', t.portada);
 
-//  RUTA INTELIGENTE
-const logo = t.logo;
-const portada = t.portada;
-
-const rutaLogo = logo?.includes('talleres/')
-  ? '/uploads/' + logo
-  : '/uploads/talleres/' + logo;
-
-const rutaPortada = portada?.includes('talleres/')
-  ? '/uploads/' + portada
-  : '/uploads/talleres/' + portada;
-
 // LOGO
 if (t.logo) {
   const logoImg = document.querySelector('.logo-circle img');
 
-  const ruta1 = `/uploads/talleres/${t.logo}`;
-  const ruta2 = `/uploads/${t.logo}`;
-
   if (logoImg) {
-    logoImg.src = ruta1;
-
-    logoImg.onerror = () => {
-      console.log('fallback logo');
-      logoImg.src = ruta2;
-    };
+    logoImg.src = t.logo;
   }
 }
 
@@ -429,20 +409,7 @@ if (t.logo) {
 if (t.portada) {
   const cover = document.querySelector('.cover');
 
-  const ruta1 = `/uploads/talleres/${t.portada}`;
-  const ruta2 = `/uploads/${t.portada}`;
-
-  const img = new Image();
-  img.src = ruta1;
-
-  img.onload = () => {
-    cover.style.backgroundImage = `url('${ruta1}')`;
-  };
-
-  img.onerror = () => {
-    console.log('fallback portada');
-    cover.style.backgroundImage = `url('${ruta2}')`;
-  };
+  cover.style.backgroundImage = `url('${t.portada}')`;
 }
 
 const modulos = typeof t.modulos === 'string'
@@ -894,7 +861,7 @@ async function cargarFotosServicio(servicioId) {
     const box = document.createElement('div');
     box.className = 'foto-box';
 
-    const imgSrc = `/uploads/servicios/${servicioId}/${f.archivo}`;
+    const imgSrc = f.archivo;
 
     box.innerHTML = `<img src="${imgSrc}" style="cursor:pointer">`;
 
