@@ -1,22 +1,16 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary'); // asegúrate de tener este archivo
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
     const servicioId = req.params.id;
-    const dir = path.join(__dirname, '../uploads/servicios', servicioId);
 
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const nombre = Date.now() + ext;
-    cb(null, nombre);
+    return {
+      folder: `talleres/servicios/${servicioId}`,
+      allowed_formats: ['jpg', 'png', 'jpeg', 'webp']
+    };
   }
 });
 
@@ -30,4 +24,4 @@ const uploadFotosServicio = multer({
   }
 });
 
-module.exports = uploadFotosServicio; 
+module.exports = uploadFotosServicio;
