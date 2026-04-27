@@ -17,6 +17,7 @@ router.post('/registro-nuevo',
   async (req, res) => {
 
   const { cliente, vehiculo, servicio } = req.body;
+  console.log("BODY:", JSON.stringify(req.body, null, 2));
   const taller_id = req.user.taller_id;
 
   if (
