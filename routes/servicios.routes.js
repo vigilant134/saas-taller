@@ -126,9 +126,9 @@ router.post('/:id/fotos', uploadFotosServicio.array('fotos', 10), async (req, re
   try {
     for (const file of req.files) {
       await db.query(
-        'INSERT INTO fotos_servicio (servicio_id, archivo, taller_id) VALUES (?, ?, ?)',
-        [servicioId, file.filename, taller_id]
-      );
+  'INSERT INTO fotos_servicio (servicio_id, archivo, taller_id) VALUES (?, ?, ?)',
+  [servicioId, file.path, taller_id]
+);
     }
 
     res.json({ ok: true, message: 'Fotos guardadas' });
@@ -228,7 +228,7 @@ router.get('/vehiculo/:vin', async (req, res) => {
     .filter(f => f.servicio_id === s.id)
    .map(f => ({
   id: f.id,
-  url: `/uploads/servicios/${s.id}/${f.archivo}`
+  url: f.archivo
     }))
 }));
 
@@ -258,14 +258,6 @@ router.delete('/fotos/:id', async (req, res) => {
 
     const { archivo, servicio_id } = rows[0];
 
-    const fs = require('fs');
-    const path = require('path');
-
-    const filePath = path.join(__dirname, '../uploads/servicios', String(servicio_id), archivo);
-
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
 
     await db.query('DELETE FROM fotos_servicio WHERE id = ? AND taller_id = ?', [fotoId, taller_id]);
 
