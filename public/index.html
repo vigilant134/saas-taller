@@ -1016,15 +1016,29 @@ document.getElementById('guardarRegistro').onclick = async () => {
   // =====================
   // SUBIR FOTOS (SI HAY)
   // =====================
-  if(fotosRegistro.length && data.servicio_id){
+  if (fotosRegistro.length && data.servicio_id) {
+  try {
     const fd = new FormData();
     fotosRegistro.forEach(f => fd.append('fotos', f));
 
-    await apiFetch(`/api/servicios/${data.servicio_id}/fotos`, {
+    const resFotos = await fetch(`/api/servicios/${data.servicio_id}/fotos`, {
       method: 'POST',
-      body: fd
+      body: fd,
+      credentials: 'include'
     });
+
+    const text = await resFotos.text();
+
+    try {
+      JSON.parse(text); // solo para validar
+    } catch (e) {
+      console.error("ERROR SUBIENDO FOTOS:", text);
+    }
+
+  } catch (err) {
+    console.error("Fallo subida fotos:", err);
   }
+}
 
   // =====================
   // ÉXITO
