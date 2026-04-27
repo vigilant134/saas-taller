@@ -119,11 +119,11 @@ VALUES (?, ?, ?, ?, ?, ?)`,
         taller_id,
         vehiculo_id,
         servicio.descripcion,
-        Number(servicio.costo) || 0,
+        servicio.costo ? Number(servicio.costo) : 0,
         servicio.fecha_servicio,
-        Number(servicio.kilometraje) || 0,
+        servicio.kilometraje ? Number(servicio.kilometraje) : 0,
         servicio.unidad || 'km',
-        Number(servicio.garantia_meses) || 0,
+        servicio.garantia_meses ? Number(servicio.garantia_meses) : 0,
         folio
       ]
     );
