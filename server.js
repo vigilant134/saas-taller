@@ -28,9 +28,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false,   // 🔥 FORZAR
-    sameSite: 'lax'  // 🔥 FORZAR
-  }
+  secure: isProd,
+  sameSite: isProd ? 'none' : 'lax'
+}
 }));
 
 // 🔒 BLOQUEAR acceso directo
