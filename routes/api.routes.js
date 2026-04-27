@@ -168,4 +168,51 @@ router.get('/taller/:slug', async (req, res) => {
   }
 });
 
+
+const upload = require('../middlewares/uploadFotosServicio'); // puedes reutilizarlo
+
+router.post('/taller/imagen/:tipo', authTaller, async (req, res) => {
+  upload.single('imagen')(req, res, async (err) => {
+
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ ok:false });
+    }
+
+    const taller_id = req.user.taller_id;
+    const tipo = req.params.tipo; // logo o portada
+
+    if (!req.file) {
+      return res.status(400).json({ ok:false, message:'Sin archivo' });
+    }
+
+    const url = req.file.path;
+
+    try {
+      if (tipo === 'logo') {
+        await db.query(
+          'UPDATE talleres SET logo = ? WHERE id = ?',
+          [url, taller_id]
+        );
+      }
+
+      if (tipo === 'portada') {
+        await db.query(
+          'UPDATE talleres SET portada = ? WHERE id = ?',
+          [url, taller_id]
+        );
+      }
+
+      res.json({ ok:true, url });
+
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ ok:false });
+    }
+
+  });
+});
+
+
+
 module.exports = router;

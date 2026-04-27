@@ -356,8 +356,6 @@ const modulos = {
 }
 async function subirImagen(tipo, archivo){
 
-  console.log('SUBIENDO A TALLER:', tallerActual.id); //  AQUÍ
-
   if (!archivo) {
     alert('Selecciona una imagen');
     return;
@@ -365,11 +363,11 @@ async function subirImagen(tipo, archivo){
 
   const fd = new FormData();
   fd.append('imagen', archivo);
-  fd.append('tipo', tipo);
 
-  await fetch('/api/admin/talleres/' + tallerActual.id + '/upload', {
+  await fetch('/api/taller/imagen/' + tipo, {
     method: 'POST',
-    body: fd
+    body: fd,
+    credentials: 'include'
   });
 
   alert(tipo + ' actualizado ✔');
