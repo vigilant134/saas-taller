@@ -2,11 +2,8 @@ const { Router } = require('express');
 const router = Router();
 const db = require('../db');
 const bcrypt = require('bcrypt');
-const multer = require('multer');
-const path = require('path');
 const crypto = require('crypto');
 const uploadCloud = require('../middlewares/uploadFotosServicio');
-
 
 // IMPORTAR MIDDLEWARE
 const authAdmin = require('../middlewares/authAdmin');
@@ -14,44 +11,9 @@ const authAdmin = require('../middlewares/authAdmin');
 // PROTEGER TODO EL ARCHIVO
 router.use(authAdmin);
 
-const fs = require('fs');
-
-const uploadPath = path.join(process.cwd(), 'uploads/talleres');
-
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true });
-}
-
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), 'uploads/talleres'));
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-
-    const nombreLimpio = path
-      .basename(file.originalname, ext)
-      .replace(/\s+/g, '_')
-      .toLowerCase();
-
-    const unique = Date.now() + '-' + nombreLimpio + ext;
-
-    cb(null, unique);
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);
-  } else {
-    cb(new Error('Solo imágenes'), false);
-  }
-};
-
-const upload = multer({ storage, fileFilter });
-
-//  (luego le metemos auth admin)
+// ============================
+// OBTENER TALLERES
+// ============================
 router.get('/talleres', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM talleres');
@@ -62,15 +24,15 @@ router.get('/talleres', async (req, res) => {
   }
 });
 
-//  actualizar plan / estado / módulos / descripcion / ubicacion / servicios
+// ============================
+// ACTUALIZAR TALLER
+// ============================
 router.patch('/talleres/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-
     const campos = req.body;
 
-    // 🔥 si vienen modulos, convertir a JSON
     if (campos.modulos) {
       campos.modulos = JSON.stringify(campos.modulos);
     }
@@ -88,8 +50,9 @@ router.patch('/talleres/:id', async (req, res) => {
   }
 });
 
-
-//  CREAR TALLER + USUARIO
+// ============================
+// CREAR TALLER + USUARIO
+// ============================
 router.post('/talleres', async (req, res) => {
 
   const {
@@ -110,12 +73,10 @@ router.post('/talleres', async (req, res) => {
 
   try {
 
-    //  password 
-    
     const passwordPlano = crypto.randomBytes(4).toString('hex');
     const passwordHash = await bcrypt.hash(passwordPlano, 10);
 
-    // 1️ crear taller
+    // crear taller
     await db.query(
       `INSERT INTO talleres
       (nombre, telefono, slug, plan, estado, modulos)
@@ -134,7 +95,6 @@ router.post('/talleres', async (req, res) => {
       ]
     );
 
-    // 2️ obtener id del taller
     const [tallerCreado] = await db.query(
       'SELECT id FROM talleres WHERE slug = ?',
       [slug]
@@ -142,7 +102,7 @@ router.post('/talleres', async (req, res) => {
 
     const taller_id = tallerCreado[0].id;
 
-    // 3️ crear usuario
+    // crear usuario
     await db.query(
       `INSERT INTO usuarios (taller_id, nombre, email, password, rol)
        VALUES (?, ?, ?, ?, 'operador')`,
@@ -157,7 +117,7 @@ router.post('/talleres', async (req, res) => {
     res.json({
       ok:true,
       usuario: slug + '@app.com',
-      password: passwordPlano //  para que lo veas al crear
+      password: passwordPlano
     });
 
   } catch (err) {
@@ -174,11 +134,13 @@ router.post('/talleres', async (req, res) => {
   }
 });
 
+// ============================
+// SUBIR LOGO / PORTADA (CLOUDINARY)
+// ============================
 router.post('/talleres/:id/upload', (req, res) => {
 
   uploadCloud.single('imagen')(req, res, async (err) => {
 
-    // 🔥 FALTA ESTO (MUY IMPORTANTE)
     if (err) {
       console.error("ERROR CLOUDINARY:", err);
       return res.status(500).json({ ok:false });
@@ -187,23 +149,23 @@ router.post('/talleres/:id/upload', (req, res) => {
     const { id } = req.params;
     const { tipo } = req.body;
 
+    if (!req.file) {
+      return res.status(400).json({
+        ok:false,
+        message:'No se envió archivo'
+      });
+    }
+
+    const campo = tipo === 'logo' ? 'logo' : 'portada';
+
     try {
-
-      if (!req.file) {
-        return res.status(400).json({
-          ok:false,
-          message:'No se envió archivo'
-        });
-      }
-
-      const campo = tipo === 'logo' ? 'logo' : 'portada';
 
       await db.query(
         `UPDATE talleres SET ${campo} = ? WHERE id = ?`,
         [req.file.path, id]
       );
 
-      console.log("IMG:", req.file.path);
+      console.log("IMG CLOUDINARY:", req.file.path);
 
       res.json({ ok:true });
 
@@ -216,7 +178,9 @@ router.post('/talleres/:id/upload', (req, res) => {
 
 });
 
-
+// ============================
+// LISTAR USUARIOS
+// ============================
 router.get('/usuarios', async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -243,9 +207,5 @@ router.get('/usuarios', async (req, res) => {
     res.status(500).json({ ok: false });
   }
 });
-
-
-
-
 
 module.exports = router;
