@@ -361,14 +361,15 @@ async function subirImagen(tipo, archivo){
     return;
   }
 
-  const fd = new FormData();
-  fd.append('imagen', archivo);
+const fd = new FormData();
+fd.append('imagen', archivo);
+fd.append('tipo', tipo); // 🔥 CLAVE
 
-  await fetch('/api/admin/talleres/' + tallerActual.id + '/imagen/' + tipo, {
-    method: 'POST',
-    body: fd,
-    credentials: 'include'
-  });
+await fetch('/api/admin/talleres/' + tallerActual.id + '/upload', {
+  method: 'POST',
+  body: fd,
+  credentials: 'include'
+});
 
   alert(tipo + ' actualizado ✔');
 
