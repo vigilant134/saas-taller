@@ -1154,7 +1154,7 @@ async function cargarCitas(){
   const contenedor = document.getElementById('citas');
   contenedor.innerHTML = '<h2>Citas</h2>';
 
-  if(!data.data.length){
+  if(!data.data || !data.data.length){
     contenedor.innerHTML += '<p>No hay citas pendientes.</p>';
     return;
   }
