@@ -697,38 +697,51 @@ document.getElementById('fotosServicio').onchange = e=>{
 };
 
 guardarServicio.onclick = async ()=> {
-  const data = await apiFetch('/api/servicios', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      vin: servVin.value,
-      descripcion: servDescripcion.value,
-      costo: servCosto.value,
-      fecha_servicio: servFecha.value,
-      kilometraje: servKm.value,
-      unidad: servUnidad.value,
-      garantia_meses: servGarantia.value
-    })
-  });
 
-  if(!data.ok){
-    alert(data.message || 'Error al guardar servicio');
-    return;
-  }
+  guardarServicio.disabled = true;
 
-  if (fotosTemporales.length) {
-    const fd = new FormData();
-    fotosTemporales.forEach(f => fd.append('fotos', f));
-    await apiFetch(`/api/servicios/${data.id}/fotos`, {
+  try {
+
+    console.log("ENVIANDO SERVICIO");
+
+    const data = await apiFetch('/api/servicios', {
       method: 'POST',
-      body: fd
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        vin: servVin.value,
+        descripcion: servDescripcion.value,
+        costo: servCosto.value,
+        fecha_servicio: servFecha.value,
+        kilometraje: servKm.value,
+        unidad: servUnidad.value,
+        garantia_meses: servGarantia.value
+      })
     });
-  }
 
-  alert('Servicio guardado');
-  formServicio.reset();
-  fotosTemporales = [];
-  estadoFotos.textContent = '';
+    if(!data.ok){
+      alert(data.message || 'Error al guardar servicio');
+      return;
+    }
+
+    if (fotosTemporales.length) {
+      const fd = new FormData();
+      fotosTemporales.forEach(f => fd.append('fotos', f));
+
+      await apiFetch(`/api/servicios/${data.id}/fotos`, {
+        method: 'POST',
+        body: fd
+      });
+    }
+
+    alert('Servicio guardado');
+
+    formServicio.reset();
+    fotosTemporales = [];
+    estadoFotos.textContent = '';
+
+  } finally {
+    guardarServicio.disabled = false;
+  }
 };
 // ==============================
 // HISTORIAL Y GARANTÍAS
@@ -987,82 +1000,102 @@ document.getElementById('regFotosServicio').onchange = e => {
   estadoFotosRegistro.textContent = `${fotosRegistro.length} fotos listas`;
 };
 
-document.getElementById('guardarRegistro').onclick = async () => {
+const btnRegistro = document.getElementById('guardarRegistro');
 
-  // =====================
-  // ARMAR PAYLOAD
-  // =====================
-  const payload = {
-    cliente: {
-      nombre: regClienteNombre.value,
-      telefono: regClienteTelefono.value,
-      correo: regClienteCorreo.value
-    },
-    vehiculo: {
-      vin: regVin.value,
-      marca: regMarca.value,
-      modelo: regModelo.value,
-      anio: regAnio.value
-    },
-    servicio: {
-      descripcion: regServicioDesc.value,
-      costo: regServicioCosto.value,
-      fecha_servicio: regServicioFecha.value,
-      kilometraje: regServicioKm.value,
-      unidad: regServicioUnidad.value,
-      garantia_meses: regGarantia.value
-    }
-  };
+btnRegistro.onclick = async () => {
 
-  // =====================
-  // ENVIAR TODO EN UNA SOLA REQUEST
-  // =====================
-  const data = await apiFetch('/api/registro-nuevo', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  });
+  btnRegistro.disabled = true;
 
-  if(!data.ok){
-    alert(data.message || 'Error en registro');
-    return;
-  }
-
-  // =====================
-  // SUBIR FOTOS (SI HAY)
-  // =====================
-  if (fotosRegistro.length && data.servicio_id) {
   try {
-    const fd = new FormData();
-    fotosRegistro.forEach(f => fd.append('fotos', f));
 
-    const resFotos = await fetch(`/api/servicios/${data.servicio_id}/fotos`, {
+    console.log("ENVIANDO REGISTRO");
+
+    // =====================
+    // ARMAR PAYLOAD
+    // =====================
+    const payload = {
+      cliente: {
+        nombre: regClienteNombre.value,
+        telefono: regClienteTelefono.value,
+        correo: regClienteCorreo.value
+      },
+      vehiculo: {
+        vin: regVin.value,
+        marca: regMarca.value,
+        modelo: regModelo.value,
+        anio: regAnio.value
+      },
+      servicio: {
+        descripcion: regServicioDesc.value,
+        costo: regServicioCosto.value,
+        fecha_servicio: regServicioFecha.value,
+        kilometraje: regServicioKm.value,
+        unidad: regServicioUnidad.value,
+        garantia_meses: regGarantia.value
+      }
+    };
+
+    // =====================
+    // ENVIAR TODO
+    // =====================
+    const data = await apiFetch('/api/registro-nuevo', {
       method: 'POST',
-      body: fd,
-      credentials: 'include'
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
     });
 
-    const text = await resFotos.text();
-
-    try {
-      JSON.parse(text); // solo para validar
-    } catch (e) {
-      console.error("ERROR SUBIENDO FOTOS:", text);
+    if(!data.ok){
+      alert(data.message || 'Error en registro');
+      return;
     }
 
-  } catch (err) {
-    console.error("Fallo subida fotos:", err);
+    // =====================
+    // SUBIR FOTOS
+    // =====================
+    if (fotosRegistro.length && data.servicio_id) {
+
+      try {
+
+        const fd = new FormData();
+
+        fotosRegistro.forEach(f => fd.append('fotos', f));
+
+        const resFotos = await fetch(
+          `/api/servicios/${data.servicio_id}/fotos`,
+          {
+            method: 'POST',
+            body: fd,
+            credentials: 'include'
+          }
+        );
+
+        const text = await resFotos.text();
+
+        try {
+          JSON.parse(text);
+        } catch (e) {
+          console.error("ERROR SUBIENDO FOTOS:", text);
+        }
+
+      } catch (err) {
+        console.error("Fallo subida fotos:", err);
+      }
+    }
+
+    // =====================
+    // ÉXITO
+    // =====================
+    alert('Registro completo guardado');
+
+    formRegistro.reset();
+    fotosRegistro = [];
+    estadoFotosRegistro.textContent = '';
+
+  } finally {
+
+    btnRegistro.disabled = false;
+
   }
-}
-
-  // =====================
-  // ÉXITO
-  // =====================
-  alert('Registro completo guardado');
-
-  formRegistro.reset();
-  fotosRegistro = [];
-  estadoFotosRegistro.textContent = '';
 };
 </script>
 

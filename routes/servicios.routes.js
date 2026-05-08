@@ -13,14 +13,28 @@ POST agregar servicio
 ========================================
 */
 router.post('/', async (req, res) => {
-  const { vin, descripcion, fecha_servicio, garantia_meses, kilometraje, unidad, costo } = req.body;
+  console.log("BODY SERVICIO:", req.body);
+  const {
+    vin,
+    descripcion,
+    fecha_servicio,
+    garantia_meses,
+    kilometraje,
+    unidad,
+    costo
+  } = req.body;
+
   const taller_id = req.user.taller_id;
 
-  const vinClean = vin.trim().toUpperCase(); 
-
+  // VALIDAR ANTES DE USAR trim()
   if (!vin || !descripcion || !fecha_servicio) {
-    return res.status(400).json({ ok: false, message: 'Faltan datos' });
+    return res.status(400).json({
+      ok: false,
+      message: 'Faltan datos'
+    });
   }
+
+  const vinClean = vin.trim().toUpperCase();
 
   try {
 
