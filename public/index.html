@@ -696,12 +696,17 @@ document.getElementById('fotosServicio').onchange = e=>{
   estadoFotos.textContent = `${fotosTemporales.length} fotos listas`;
 };
 
-guardarServicio.onclick = async ()=> {
+const btnGuardarServicio = document.getElementById('guardarServicio');
 
-  guardarServicio.disabled = true;
+btnGuardarServicio.onclick = async () => {
+
+  if (btnGuardarServicio.disabled) return;
+
+  btnGuardarServicio.disabled = true;
 
   try {
 
+    console.log("CLICK SERVICIO");
     console.log("ENVIANDO SERVICIO");
 
     const data = await apiFetch('/api/servicios', {
@@ -739,9 +744,9 @@ guardarServicio.onclick = async ()=> {
     fotosTemporales = [];
     estadoFotos.textContent = '';
 
-  } finally {
-    guardarServicio.disabled = false;
-  }
+} finally {
+  btnGuardarServicio.disabled = false;
+}
 };
 // ==============================
 // HISTORIAL Y GARANTÍAS
